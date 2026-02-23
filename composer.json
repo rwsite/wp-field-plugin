@@ -1,40 +1,69 @@
 {
   "name": "rwsite/wp-field",
-  "description": "WP_Field — Universal HTML field generator for WordPress",
+  "description": "Modern Laravel-style field generator for WordPress with 50+ field types, fluent API, React UI, repeater/flexible content fields, conditional logic, and complete storage strategies.",
   "type": "wordpress-plugin",
-  "version": "2.1.0",
-  "license": "proprietary",
+  "license": "GPL-2.0-or-later",
+  "keywords": [
+    "wordpress",
+    "fields",
+    "forms",
+    "metabox",
+    "settings",
+    "laravel",
+    "fluent",
+    "repeater",
+    "flexible-content",
+    "react"
+  ],
+  "homepage": "https://github.com/rwsite/wp-field-plugin",
   "authors": [
     {
       "name": "Aleksei Tikhomirov",
-      "email": "alex@rwsite.ru"
+      "email": "alex@rwsite.ru",
+      "homepage": "https://rwsite.ru",
+      "role": "Developer"
     }
   ],
+  "support": {
+    "issues": "https://github.com/rwsite/wp-field-plugin/issues",
+    "source": "https://github.com/rwsite/wp-field-plugin"
+  },
   "require": {
-    "php": ">=8.0"
+    "php": ">=8.3"
   },
   "require-dev": {
     "pestphp/pest": "^4.1",
     "laravel/pint": "^1.16",
-    "phpunit/phpunit": "12.4.1"
+    "phpunit/phpunit": "12.4.1",
+    "phpstan/phpstan": "^1.10",
+    "szepeviktor/phpstan-wordpress": "^1.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "WpField\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "WpField\\Tests\\": "tests/"
+    }
   },
   "scripts": {
     "test": "./vendor/bin/pest --configuration phpunit.xml",
     "test:unit": "./vendor/bin/pest --configuration phpunit.xml --filter=Unit",
     "test:feature": "./vendor/bin/pest --configuration phpunit.xml --filter=Feature",
     "test:coverage": "./vendor/bin/pest --coverage-html coverage/ --coverage-clover coverage/clover.xml --coverage-text",
-    "test:old": "php tests/test-wp-field-v2.4.php",
-    "pint": "./vendor/bin/pint",
-    "pint:check": "./vendor/bin/pint --test -v"
+    "analyse": "./vendor/bin/phpstan analyse --memory-limit=1G",
+    "lint": "./vendor/bin/pint",
+    "lint:check": "./vendor/bin/pint --test -v"
   },
   "scripts-descriptions": {
     "test": "Запуск PEST тестов",
     "test:unit": "Запуск Unit тестов",
     "test:feature": "Запуск Feature тестов",
     "test:coverage": "Запуск тестов с отчётом покрытия",
-    "test:old": "Запуск старых тестов напрямую",
-    "pint": "Форматирование кода через Pint",
-    "pint:check": "Проверка форматирования кода"
+    "lint": "Форматирование кода через Pint",
+    "lint:check": "Проверка форматирования кода"
   },
   "config": {
     "allow-plugins": {

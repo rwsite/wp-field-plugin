@@ -24,3 +24,4 @@ vendor/
 *.sqlite
 .idea
 /.phpunit.cache/
+/.phpunit.result.cache

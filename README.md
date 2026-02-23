@@ -1,18 +1,18 @@
 <p align="center">
-  <img src="placeholder.svg" alt="WP_Field Logo" width="150" height="150">
+  <img src="wp-field.png" alt="WP_Field Screenshot" width="800">
 </p>
 
 <h1 align="center">WP_Field</h1>
 
 <p align="center">
-  <strong>Universal HTML Field Generator for WordPress</strong><br>
-  Minimalist, extensible library for creating fields in WordPress with support for:<br>
-  52 field types, dependency system, all storage types, and built-in WP components.
+  <strong>HTML Fields Library for WordPress</strong><br>
+  A foundation for building custom frameworks, settings systems, and admin UIs.<br>
+  Fluent API, 48 unique field types (+4 aliases), React/Vanilla UI, and modern v3 architecture.
 </p>
 
 <p align="center">
   <a href="https://packagist.org/packages/rwsite/wp-field"><img src="https://img.shields.io/packagist/v/rwsite/wp-field.svg?style=flat-square" alt="Latest Version"></a>
-  <img src="https://img.shields.io/badge/PHP-8.0+-blue.svg?style=flat-square" alt="PHP Version">
+  <img src="https://img.shields.io/badge/PHP-8.3+-blue.svg?style=flat-square" alt="PHP Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg?style=flat-square" alt="License"></a>
 </p>
 
@@ -30,77 +30,120 @@
 
 ## Features
 
-- 🚀 **52 Field Types** — Basic, choice, advanced, composite, and specialized fields
-- 🔗 **Dependency System** — 12 operators with AND/OR logic for field visibility
-- 📦 **Multiple Storages** — Post meta, options, term meta, user meta, comment meta
-- 🎨 **WP Components** — wp_editor, wp-color-picker, wp.media, CodeMirror integration
-- 🔌 **Zero Dependencies** — Uses only built-in WordPress scripts and components
-- 🌍 **i18n Ready** — Translations included (Russian)
-- 📊 **Interactive Demo** — Live examples page in WordPress admin
+### v3.0 — Modern Laravel-Style API
+- ✨ **Fluent Interface** — Chain methods like Laravel: `Field::text('name')->label('Name')->required()`
+- 🔁 **Repeater Fields** — Infinite nesting support with min/max constraints
+- 🎨 **Flexible Content** — ACF-style layout builder with multiple block types
+- ⚛️ **React UI** — Modern React components with Vanilla JS fallback
+- 🏗️ **SOLID Architecture** — Interfaces, traits, dependency injection
+- 📦 **Storage Strategies** — PostMeta, TermMeta, UserMeta, Options, CustomTable
+- 🛡️ **Type Safety** — PHPStan Level 9, strict types, full PHPDoc
+
+### Core Features
+- 🚀 **48 Unique Field Types** — Text, select, repeater, flexible content, and more
+- ♻️ **4 Compatibility Aliases** — `date_time`, `datetime-local`, `image_picker`, `imagepicker`
+- 🔗 **Conditional Logic** — 14 operators with AND/OR relations
+- 🧪 **Full Test Coverage** — Pest/PHPUnit tests with 100% pass rate
+- 🎨 **WP Components** — Native WordPress UI integration
+- 🌍 **i18n Ready** — Multilingual support
 
 ## Requirements
 
-- PHP 8.0+
-- WordPress 4.6+
+- PHP 8.3+
+- WordPress 6.0+
+- Composer (for installation)
 
 ## Installation
 
-1. Clone or download to `wp-content/plugins/wp-field`
-2. Run `composer install`
-3. Activate the plugin
+### Via Composer (Recommended)
+
+```bash
+composer require rwsite/wp-field
+```
+
+### Manual Installation
+
+1. Clone or download to `wp-content/plugins/wp-field-plugin`
+2. Run `composer install --no-dev`
+3. Activate the plugin in WordPress admin
+
+### Build React Components (Optional)
+
+```bash
+npm install
+npm run build
+```
 
 ## Quick Start
 
-### Simple Text Field
+### Modern API (v3.0)
 
 ```php
-// Simple text field
-WP_Field::make([
-    'id'    => 'shop_name',
-    'type'  => 'text',
-    'label' => 'Shop Name',
+use WpField\Field\Field;
+use WpField\Container\MetaboxContainer;
+
+// Fluent interface
+$field = Field::text('email')
+    ->label('Email Address')
+    ->placeholder('user@example.com')
+    ->required()
+    ->email()
+    ->class('regular-text');
+
+// Render field
+echo $field->render();
+
+// Create metabox with fields
+$metabox = new MetaboxContainer('product_details', [
+    'title' => 'Product Details',
+    'post_types' => ['product'],
 ]);
 
-// Select with dependency
-WP_Field::make([
-    'id'      => 'delivery_type',
-    'type'    => 'select',
-    'label'   => 'Delivery Type',
-    'options' => ['courier' => 'Courier', 'pickup' => 'Pickup'],
-]);
+$metabox->addField(
+    Field::text('sku')->label('SKU')->required()
+);
 
-WP_Field::make([
-    'id'    => 'delivery_address',
-    'type'  => 'text',
-    'label' => 'Delivery Address',
-    'dependency' => [
-        ['delivery_type', '==', 'courier'],
-    ],
-]);
+$metabox->addField(
+    Field::text('price')->label('Price')->required()
+);
+
+$metabox->register();
 ```
 
-### Dispatching Fields
+### Repeater Field
 
 ```php
-use WP_Field\WP_Field;
-
-// Dispatch to output
-WP_Field::make($field_config, true, 'post', $post_id);
-
-// Save to options
-WP_Field::make($field_config, false, 'options');
-
-// Term meta
-WP_Field::make($field_config, false, 'term', $term_id);
-
-// User meta
-WP_Field::make($field_config, false, 'user', $user_id);
-
-// Comment meta
-WP_Field::make($field_config, false, 'comment', $comment_id);
+$repeater = Field::repeater('team_members')
+    ->label('Team Members')
+    ->fields([
+        Field::text('name')->label('Name')->required(),
+        Field::text('position')->label('Position'),
+        Field::text('email')->label('Email')->email(),
+    ])
+    ->min(1)
+    ->max(10)
+    ->buttonLabel('Add Member')
+    ->layout('table');
 ```
 
-## Field Types (52)
+### Flexible Content Field
+
+```php
+$flexible = Field::flexibleContent('page_sections')
+    ->label('Page Sections')
+    ->addLayout('text_block', 'Text Block', [
+        Field::text('heading')->label('Heading'),
+        Field::text('content')->label('Content'),
+    ])
+    ->addLayout('image', 'Image', [
+        Field::text('image_url')->label('Image URL')->url(),
+        Field::text('caption')->label('Caption'),
+    ])
+    ->min(1)
+    ->buttonLabel('Add Section');
+```
+
+## Field Types (48 unique + 4 aliases)
 
 ### Basic (9)
 - `text` — Text input
@@ -135,7 +178,7 @@ WP_Field::make($field_config, false, 'comment', $comment_id);
 - `group` — Nested fields
 - `repeater` — Repeating elements
 
-### Simple v2.1 (9)
+### Simple Fields (9)
 - `switcher` — On/off switcher
 - `spinner` — Number spinner
 - `button_set` — Button selection
@@ -146,7 +189,7 @@ WP_Field::make($field_config, false, 'comment', $comment_id);
 - `content` — Custom HTML content
 - `fieldset` — Field grouping
 
-### Medium Complexity v2.2 (10)
+### Medium Complexity Fields (10)
 - `accordion` — Collapsible sections
 - `tabbed` — Tabs
 - `typography` — Typography settings
@@ -158,7 +201,7 @@ WP_Field::make($field_config, false, 'comment', $comment_id);
 - `color_group` — Color group
 - `image_select` — Image selection
 
-### High Complexity v2.3 (8)
+### High Complexity Fields (8)
 - `code_editor` — Code editor with syntax highlighting
 - `icon` — Icon picker from library
 - `map` — Google Maps location
@@ -254,7 +297,7 @@ WP_Field::make([
 ]);
 ```
 
-### Code Editor (v2.3)
+### Code Editor
 
 ```php
 WP_Field::make([
@@ -266,7 +309,7 @@ WP_Field::make([
 ]);
 ```
 
-### Icon Picker (v2.3)
+### Icon Picker
 
 ```php
 WP_Field::make([
@@ -277,7 +320,7 @@ WP_Field::make([
 ]);
 ```
 
-### Map (v2.3)
+### Map
 
 ```php
 WP_Field::make([
@@ -290,7 +333,7 @@ WP_Field::make([
 ]);
 ```
 
-### Sortable (v2.3)
+### Sortable
 
 ```php
 WP_Field::make([
@@ -306,7 +349,7 @@ WP_Field::make([
 ]);
 ```
 
-### Palette (v2.3)
+### Palette
 
 ```php
 WP_Field::make([
@@ -321,7 +364,7 @@ WP_Field::make([
 ]);
 ```
 
-### Link (v2.3)
+### Link
 
 ```php
 WP_Field::make([
@@ -335,7 +378,7 @@ $link = get_post_meta($post_id, 'cta_button', true);
 // ['url' => '...', 'text' => '...', 'target' => '_blank']
 ```
 
-### Accordion (v2.2)
+### Accordion
 
 ```php
 WP_Field::make([
@@ -360,7 +403,7 @@ WP_Field::make([
 ]);
 ```
 
-### Typography (v2.2)
+### Typography
 
 ```php
 WP_Field::make([
@@ -394,15 +437,21 @@ WP_Field::make([
 
 ## Interactive Demo
 
-**See all 52 field types in action:**
+**See all 48 field types in action:**
 
-👉 **Tools → WP_Field Examples**  
-or  
+👉 **Tools → WP_Field Examples** (Classic API demo)  
 👉 `/wp-admin/tools.php?page=wp-field-examples`
 
-The page includes:
-- ✅ All field types with live examples
+👉 **Tools → WP_Field v3.0 Demo** (Modern Fluent API)  
+👉 `/wp-admin/tools.php?page=wp-field-v3-demo`
+
+The demo pages include:
+- ✅ All 48 field types with live examples
 - ✅ Code for each field
+- ✅ Fluent API demonstrations (v3.0)
+- ✅ Repeater and Flexible Content examples
+- ✅ Conditional Logic with 14 operators
+- ✅ React/Vanilla UI mode switching
 - ✅ Dependency system demonstration
 - ✅ Ability to save and test
 
@@ -448,15 +497,15 @@ See **[CHANGELOG.md](CHANGELOG.md)** for detailed version history.
 - **PHP Lines:** 2705 (WP_Field.php)
 - **JS Lines:** 1222 (wp-field.js)
 - **CSS Lines:** 1839 (wp-field.css)
-- **Field Types:** 52+
+- **Field Types:** 48
 - **Dependency Operators:** 12
 - **Storage Types:** 5
 - **External Dependencies:** 0
 
 ## Compatibility
 
-- **WordPress:** 4.6+
-- **PHP:** 7.4+
+- **WordPress:** 6.0+
+- **PHP:** 8.3+
 - **Dependencies:** jQuery, jQuery UI Sortable, WordPress built-in components
 - **Browsers:** Chrome, Firefox, Safari, Edge (latest 2 versions)
 
