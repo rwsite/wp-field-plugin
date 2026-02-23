@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="placeholder.svg" alt="WP_Field Screenshot" width="800">
+  <img src="logo.svg" alt="WP_Field Logo" width="800">
 </p>
 
 <h1 align="center">WP_Field</h1>
@@ -217,200 +217,144 @@ $flexible = Field::flexibleContent('page_sections')
 
 ```php
 // Показать поле только если другое поле имеет определенное значение
-WP_Field::make([
-    'id'    => 'courier_address',
-    'type'  => 'text',
-    'label' => 'Адрес доставки',
-    'dependency' => [
-        ['delivery_type', '==', 'courier'],
-    ],
-]);
+Field::text('courier_address')
+    ->label('Адрес доставки')
+    ->when('delivery_type', '==', 'courier');
 
 // Множественные условия (AND)
-WP_Field::make([
-    'id'    => 'special_field',
-    'type'  => 'text',
-    'label' => 'Специальное поле',
-    'dependency' => [
-        ['field1', '==', 'value1'],
-        ['field2', '!=', 'value2'],
-        'relation' => 'AND',
-    ],
-]);
+Field::text('special_field')
+    ->label('Специальное поле')
+    ->when('field1', '==', 'value1')
+    ->when('field2', '!=', 'value2');
 
 // Множественные условия (OR)
-WP_Field::make([
-    'id'    => 'notification',
-    'type'  => 'text',
-    'label' => 'Уведомление',
-    'dependency' => [
-        ['type', '==', 'sms'],
-        ['type', '==', 'email'],
-        'relation' => 'OR',
-    ],
-]);
+Field::text('notification')
+    ->label('Уведомление')
+    ->when('type', '==', 'sms')
+    ->orWhen('type', '==', 'email');
 ```
 
 ### Repeater
 
 ```php
-WP_Field::make([
-    'id'       => 'work_times',
-    'type'     => 'repeater',
-    'label'    => 'Время работы',
-    'min'      => 1,
-    'max'      => 7,
-    'add_text' => 'Добавить день',
-    'fields'   => [
-        [
-            'id'      => 'day',
-            'type'    => 'select',
-            'label'   => 'День',
-            'options' => ['mon' => 'Пн', 'tue' => 'Вт'],
-        ],
-        [
-            'id'    => 'from',
-            'type'  => 'time',
-            'label' => 'С',
-        ],
-        [
-            'id'    => 'to',
-            'type'  => 'time',
-            'label' => 'По',
-        ],
-    ],
-]);
+Field::repeater('work_times')
+    ->label('Время работы')
+    ->min(1)
+    ->max(7)
+    ->buttonLabel('Добавить день')
+    ->fields([
+        Field::make('select', 'day')
+            ->label('День')
+            ->options(['mon' => 'Пн', 'tue' => 'Вт']),
+        Field::make('time', 'from')
+            ->label('С'),
+        Field::make('time', 'to')
+            ->label('По'),
+    ]);
 ```
 
 ### Group
 
 ```php
-WP_Field::make([
-    'id'    => 'address',
-    'type'  => 'group',
-    'label' => 'Адрес',
-    'fields' => [
-        ['id' => 'city', 'type' => 'text', 'label' => 'Город'],
-        ['id' => 'street', 'type' => 'text', 'label' => 'Улица'],
-        ['id' => 'number', 'type' => 'text', 'label' => 'Номер'],
-    ],
-]);
+Field::make('group', 'address')
+    ->label('Адрес')
+    ->fields([
+        Field::text('city')->label('Город'),
+        Field::text('street')->label('Улица'),
+        Field::text('number')->label('Номер'),
+    ]);
 ```
 
 ### Code Editor
 
 ```php
-WP_Field::make([
-    'id'     => 'custom_css',
-    'type'   => 'code_editor',
-    'label'  => 'Custom CSS',
-    'mode'   => 'css', // css, javascript, php, html
-    'height' => '400px',
-]);
+Field::make('code_editor', 'custom_css')
+    ->label('Custom CSS')
+    ->mode('css') // css, javascript, php, html
+    ->height('400px');
 ```
 
 ### Icon Picker
 
 ```php
-WP_Field::make([
-    'id'      => 'menu_icon',
-    'type'    => 'icon',
-    'label'   => 'Иконка меню',
-    'library' => 'dashicons',
-]);
+Field::make('icon', 'menu_icon')
+    ->label('Иконка меню')
+    ->library('dashicons');
 ```
 
 ### Map
 
 ```php
-WP_Field::make([
-    'id'      => 'location',
-    'type'    => 'map',
-    'label'   => 'Местоположение',
-    'api_key' => 'YOUR_GOOGLE_MAPS_API_KEY',
-    'zoom'    => 12,
-    'center'  => ['lat' => 55.7558, 'lng' => 37.6173],
-]);
+Field::make('map', 'location')
+    ->label('Местоположение')
+    ->apiKey('YOUR_GOOGLE_MAPS_API_KEY')
+    ->zoom(12)
+    ->center(['lat' => 55.7558, 'lng' => 37.6173]);
 ```
 
 ### Sortable
 
 ```php
-WP_Field::make([
-    'id'      => 'menu_order',
-    'type'    => 'sortable',
-    'label'   => 'Порядок меню',
-    'options' => [
+Field::make('sortable', 'menu_order')
+    ->label('Порядок меню')
+    ->options([
         'home'     => 'Главная',
         'about'    => 'О нас',
         'services' => 'Услуги',
         'contact'  => 'Контакты',
-    ],
-]);
+    ]);
 ```
 
 ### Palette
 
 ```php
-WP_Field::make([
-    'id'       => 'color_scheme',
-    'type'     => 'palette',
-    'label'    => 'Цветовая схема',
-    'palettes' => [
+Field::make('palette', 'color_scheme')
+    ->label('Цветовая схема')
+    ->palettes([
         'blue'   => ['#0073aa', '#005a87', '#003d82'],
         'green'  => ['#28a745', '#218838', '#1e7e34'],
         'red'    => ['#dc3545', '#c82333', '#bd2130'],
-    ],
-]);
+    ]);
 ```
 
 ### Link
 
 ```php
-WP_Field::make([
-    'id'    => 'cta_button',
-    'type'  => 'link',
-    'label' => 'CTA кнопка',
-]);
+Field::make('link', 'cta_button')
+    ->label('CTA кнопка');
 
 // Получение значения:
-$link = get_post_meta($post_id, 'cta_button', true);
+// $link = get_post_meta($post_id, 'cta_button', true);
 // ['url' => '...', 'text' => '...', 'target' => '_blank']
 ```
 
 ### Accordion
 
 ```php
-WP_Field::make([
-    'id'       => 'settings_accordion',
-    'type'     => 'accordion',
-    'label'    => 'Настройки',
-    'sections' => [
+Field::make('accordion', 'settings_accordion')
+    ->label('Настройки')
+    ->sections([
         [
             'title'  => 'Основные',
             'open'   => true,
             'fields' => [
-                ['id' => 'title', 'type' => 'text', 'label' => 'Заголовок'],
+                Field::text('title')->label('Заголовок'),
             ],
         ],
         [
             'title'  => 'Дополнительные',
             'fields' => [
-                ['id' => 'desc', 'type' => 'textarea', 'label' => 'Описание'],
+                Field::make('textarea', 'desc')->label('Описание'),
             ],
         ],
-    ],
-]);
+    ]);
 ```
 
 ### Typography
 
 ```php
-WP_Field::make([
-    'id'    => 'heading_typography',
-    'type'  => 'typography',
-    'label' => 'Типография заголовков',
-]);
+Field::make('typography', 'heading_typography')
+    ->label('Типография заголовков');
 
 // Сохраняется как:
 // [
