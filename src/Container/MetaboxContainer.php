@@ -13,7 +13,7 @@ class MetaboxContainer extends AbstractContainer
      */
     public function __construct(string $id, array $config = [])
     {
-        parent::__construct($id, new PostMetaStorage(), $config);
+        parent::__construct($id, new PostMetaStorage, $config);
     }
 
     public function register(): void

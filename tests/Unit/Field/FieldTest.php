@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use WpField\Field\Field;
 
-test('Field::text creates a TextField with correct properties', function (): void {
+it('Field::text creates a TextField with correct properties', function (): void {
     $field = Field::text('name')
         ->required()
         ->label('Имя');
@@ -17,7 +17,7 @@ test('Field::text creates a TextField with correct properties', function (): voi
         ]);
 });
 
-test('Field can chain multiple attributes', function (): void {
+it('Field can chain multiple attributes', function (): void {
     $field = Field::text('email')
         ->label('Email')
         ->placeholder('example@example.com')
@@ -35,21 +35,21 @@ test('Field can chain multiple attributes', function (): void {
         ->toHaveKey('class', 'form-control');
 });
 
-test('Field validates required values correctly', function (): void {
+it('Field validates required values correctly', function (): void {
     $field = Field::text('name')->required();
 
     expect($field->validate(''))->toBeFalse()
         ->and($field->validate('John'))->toBeTrue();
 });
 
-test('Field validates email correctly', function (): void {
+it('Field validates email correctly', function (): void {
     $field = Field::text('email')->email();
 
     expect($field->validate('invalid-email'))->toBeFalse()
         ->and($field->validate('valid@example.com'))->toBeTrue();
 });
 
-test('Field validates min/max correctly', function (): void {
+it('Field validates min/max correctly', function (): void {
     $field = Field::text('age')->min(18)->max(100);
 
     expect($field->validate(17))->toBeFalse()
@@ -59,7 +59,7 @@ test('Field validates min/max correctly', function (): void {
         ->and($field->validate(101))->toBeFalse();
 });
 
-test('Field renders HTML correctly', function (): void {
+it('Field renders HTML correctly', function (): void {
     $field = Field::text('username')
         ->label('Username')
         ->placeholder('Enter username')
@@ -75,7 +75,7 @@ test('Field renders HTML correctly', function (): void {
         ->toContain('<label');
 });
 
-test('Field sanitizes values', function (): void {
+it('Field sanitizes values', function (): void {
     $field = Field::text('name');
 
     $sanitized = $field->sanitize('<script>alert("xss")</script>');
@@ -83,13 +83,13 @@ test('Field sanitizes values', function (): void {
     expect($sanitized)->not->toContain('<script>');
 });
 
-test('Field supports default values', function (): void {
+it('Field supports default values', function (): void {
     $field = Field::text('country')->default('USA');
 
     expect($field->getValue())->toBe('USA');
 });
 
-test('Field supports conditional logic', function (): void {
+it('Field supports conditional logic', function (): void {
     $field = Field::text('city')
         ->when('country', '==', 'USA')
         ->orWhen('country', '==', 'Canada');

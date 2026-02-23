@@ -13,7 +13,7 @@ class UserContainer extends AbstractContainer
      */
     public function __construct(string $id, array $config = [])
     {
-        parent::__construct($id, new UserMetaStorage(), $config);
+        parent::__construct($id, new UserMetaStorage, $config);
     }
 
     public function register(): void

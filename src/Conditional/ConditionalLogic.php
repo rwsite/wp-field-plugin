@@ -61,6 +61,7 @@ class ConditionalLogic
 
     /**
      * @param  array<array{field: string, operator: string, value: mixed}>  $conditions
+     * @param  array<string, mixed>  $values
      */
     public static function shouldDisplay(array $conditions, array $values, string $relation = 'AND'): bool
     {
@@ -69,6 +70,7 @@ class ConditionalLogic
 
     /**
      * @param  array<array{field: string, operator: string, value: mixed}>  $conditions
+     * @param  array<string, mixed>  $values
      */
     public static function shouldSave(array $conditions, array $values, string $relation = 'AND'): bool
     {

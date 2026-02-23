@@ -84,4 +84,9 @@ trait HasAttributes
 
         return $this;
     }
+
+    public function attribute(string $key, mixed $value): static
+    {
+        return $this->setAttribute($key, $value);
+    }
 }

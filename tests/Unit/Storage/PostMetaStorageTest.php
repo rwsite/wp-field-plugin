@@ -5,11 +5,11 @@ declare(strict_types=1);
 use WpField\Storage\PostMetaStorage;
 
 beforeEach(function (): void {
-    $this->storage = new PostMetaStorage();
+    $this->storage = new PostMetaStorage;
     $this->postId = 1;
 });
 
-test('PostMetaStorage can set and get values', function (): void {
+it('PostMetaStorage can set and get values', function (): void {
     $key = 'test_meta_key';
     $value = 'test_value';
 
@@ -19,7 +19,7 @@ test('PostMetaStorage can set and get values', function (): void {
     expect($retrieved)->toBe($value);
 });
 
-test('PostMetaStorage can check if key exists', function (): void {
+it('PostMetaStorage can check if key exists', function (): void {
     $key = 'existing_key';
     $value = 'some_value';
 
@@ -29,7 +29,7 @@ test('PostMetaStorage can check if key exists', function (): void {
         ->and($this->storage->exists('non_existing_key', $this->postId))->toBeFalse();
 });
 
-test('PostMetaStorage can delete values', function (): void {
+it('PostMetaStorage can delete values', function (): void {
     $key = 'delete_test_key';
     $value = 'delete_test_value';
 
@@ -40,7 +40,7 @@ test('PostMetaStorage can delete values', function (): void {
     expect($this->storage->exists($key, $this->postId))->toBeFalse();
 });
 
-test('PostMetaStorage handles arrays correctly', function (): void {
+it('PostMetaStorage handles arrays correctly', function (): void {
     $key = 'array_key';
     $value = ['item1', 'item2', 'item3'];
 

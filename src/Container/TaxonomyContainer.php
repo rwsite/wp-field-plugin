@@ -13,7 +13,7 @@ class TaxonomyContainer extends AbstractContainer
      */
     public function __construct(string $id, array $config = [])
     {
-        parent::__construct($id, new TermMetaStorage(), $config);
+        parent::__construct($id, new TermMetaStorage, $config);
     }
 
     public function register(): void

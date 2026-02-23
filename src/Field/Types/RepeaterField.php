@@ -52,16 +52,16 @@ class RepeaterField extends AbstractField
         return $this->subFields;
     }
 
-    public function min(int $min): static
+    public function min(int|float $min): static
     {
-        $this->min = $min;
+        $this->min = (int) $min;
 
         return $this;
     }
 
-    public function max(int $max): static
+    public function max(int|float $max): static
     {
-        $this->max = $max;
+        $this->max = (int) $max;
 
         return $this;
     }

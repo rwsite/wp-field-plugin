@@ -51,21 +51,23 @@ class UIManager
         $flexibleJs = $pluginUrl.'assets/dist/flexible-content.js';
 
         if (file_exists($pluginPath.'/assets/dist/repeater.js')) {
+            $version = filemtime($pluginPath.'/assets/dist/repeater.js');
             wp_enqueue_script(
                 'wp-field-repeater-react',
                 $repeaterJs,
                 ['react', 'react-dom'],
-                filemtime($pluginPath.'/assets/dist/repeater.js'),
+                $version === false ? false : (string) $version,
                 true,
             );
         }
 
         if (file_exists($pluginPath.'/assets/dist/flexible-content.js')) {
+            $version = filemtime($pluginPath.'/assets/dist/flexible-content.js');
             wp_enqueue_script(
                 'wp-field-flexible-react',
                 $flexibleJs,
                 ['react', 'react-dom'],
-                filemtime($pluginPath.'/assets/dist/flexible-content.js'),
+                $version === false ? false : (string) $version,
                 true,
             );
         }
@@ -82,21 +84,23 @@ class UIManager
         $flexibleJs = $pluginUrl.'assets/js/flexible-content.js';
 
         if (file_exists($pluginPath.'/assets/js/repeater.js')) {
+            $version = filemtime($pluginPath.'/assets/js/repeater.js');
             wp_enqueue_script(
                 'wp-field-repeater',
                 $repeaterJs,
                 ['jquery'],
-                filemtime($pluginPath.'/assets/js/repeater.js'),
+                $version === false ? false : (string) $version,
                 true,
             );
         }
 
         if (file_exists($pluginPath.'/assets/js/flexible-content.js')) {
+            $version = filemtime($pluginPath.'/assets/js/flexible-content.js');
             wp_enqueue_script(
                 'wp-field-flexible',
                 $flexibleJs,
                 ['jquery'],
-                filemtime($pluginPath.'/assets/js/flexible-content.js'),
+                $version === false ? false : (string) $version,
                 true,
             );
         }
@@ -109,11 +113,12 @@ class UIManager
         $cssFile = $pluginUrl.'assets/css/wp-field.css';
 
         if (file_exists($pluginPath.'/assets/css/wp-field.css')) {
+            $version = filemtime($pluginPath.'/assets/css/wp-field.css');
             wp_enqueue_style(
                 'wp-field-styles',
                 $cssFile,
                 [],
-                filemtime($pluginPath.'/assets/css/wp-field.css'),
+                $version === false ? false : (string) $version,
             );
         }
     }

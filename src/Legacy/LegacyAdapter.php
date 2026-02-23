@@ -14,8 +14,17 @@ class LegacyAdapter
      */
     public static function make(array $config): FieldInterface
     {
-        $type = $config['type'] ?? 'text';
-        $name = $config['id'] ?? $config['name'] ?? '';
+        $type = 'text';
+        if (isset($config['type']) && is_string($config['type'])) {
+            $type = $config['type'];
+        }
+
+        $name = '';
+        if (isset($config['id']) && is_string($config['id'])) {
+            $name = $config['id'];
+        } elseif (isset($config['name']) && is_string($config['name'])) {
+            $name = $config['name'];
+        }
 
         if (empty($name)) {
             throw new \InvalidArgumentException('Field name/id is required');
@@ -23,21 +32,22 @@ class LegacyAdapter
 
         $field = Field::make($type, $name);
 
-        if (isset($config['label'])) {
-            $field->label((string) $config['label']);
+        if (isset($config['label']) && is_string($config['label'])) {
+            $field->label($config['label']);
         }
 
-        if (isset($config['title']) && ! isset($config['label'])) {
-            $field->label((string) $config['title']);
+        if (isset($config['title']) && is_string($config['title']) && ! isset($config['label'])) {
+            $field->label($config['title']);
         }
 
-        if (isset($config['placeholder'])) {
-            $field->placeholder((string) $config['placeholder']);
+        if (isset($config['placeholder']) && is_string($config['placeholder'])) {
+            $field->placeholder($config['placeholder']);
         }
 
-        if (isset($config['description']) || isset($config['desc'])) {
-            $desc = $config['description'] ?? $config['desc'];
-            $field->description((string) $desc);
+        if (isset($config['description']) && is_string($config['description'])) {
+            $field->description($config['description']);
+        } elseif (isset($config['desc']) && is_string($config['desc'])) {
+            $field->description($config['desc']);
         }
 
         if (isset($config['default'])) {
@@ -49,8 +59,8 @@ class LegacyAdapter
             $field->value($value);
         }
 
-        if (isset($config['class'])) {
-            $field->class((string) $config['class']);
+        if (isset($config['class']) && is_string($config['class'])) {
+            $field->class($config['class']);
         }
 
         if (isset($config['required']) && $config['required']) {
@@ -75,12 +85,17 @@ class LegacyAdapter
         }
 
         if (isset($config['validation'])) {
-            self::applyValidation($field, $config['validation']);
+            $validation = $config['validation'];
+            if (is_array($validation) || is_string($validation)) {
+                self::applyValidation($field, $validation);
+            }
         }
 
         if (isset($config['conditional_logic']) || isset($config['conditions'])) {
             $conditions = $config['conditional_logic'] ?? $config['conditions'];
-            self::applyConditionalLogic($field, $conditions);
+            if (is_array($conditions)) {
+                self::applyConditionalLogic($field, $conditions);
+            }
         }
 
         return $field;
@@ -99,7 +114,9 @@ class LegacyAdapter
         } elseif (is_array($validation)) {
             foreach ($validation as $rule => $value) {
                 if (is_numeric($rule)) {
-                    self::applyValidationRule($field, (string) $value);
+                    if (is_string($value)) {
+                        self::applyValidationRule($field, $value);
+                    }
                 } else {
                     self::applyValidationRule($field, $rule, $value);
                 }
@@ -130,8 +147,8 @@ class LegacyAdapter
     protected static function applyConditionalLogic(FieldInterface $field, array $conditions): void
     {
         foreach ($conditions as $condition) {
-            $targetField = $condition['field'] ?? '';
-            $operator = $condition['operator'] ?? '==';
+            $targetField = is_string($condition['field'] ?? null) ? $condition['field'] : '';
+            $operator = is_string($condition['operator'] ?? null) ? $condition['operator'] : '==';
             $value = $condition['value'] ?? '';
 
             if (! empty($targetField)) {

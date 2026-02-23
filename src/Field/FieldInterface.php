@@ -26,4 +26,41 @@ interface FieldInterface
     public function value(mixed $value): static;
 
     public function getValue(): mixed;
+
+    // HasAttributes trait methods
+    public function label(string $label): static;
+
+    public function placeholder(string $placeholder): static;
+
+    public function description(string $description): static;
+
+    public function default(mixed $default): static;
+
+    public function class(string $class): static;
+
+    public function id(string $id): static;
+
+    public function disabled(bool $disabled = true): static;
+
+    public function readonly(bool $readonly = true): static;
+
+    public function setAttribute(string $key, mixed $value): static;
+
+    public function attribute(string $key, mixed $value): static;
+
+    // HasValidation trait methods
+    public function required(bool $required = true): static;
+
+    public function min(int|float $min): static;
+
+    public function max(int|float $max): static;
+
+    public function pattern(string $pattern): static;
+
+    public function email(): static;
+
+    public function url(): static;
+
+    // HasConditionals trait methods
+    public function when(string $field, string $operator, mixed $value): static;
 }

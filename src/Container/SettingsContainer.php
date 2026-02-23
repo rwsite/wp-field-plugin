@@ -13,7 +13,7 @@ class SettingsContainer extends AbstractContainer
      */
     public function __construct(string $id, array $config = [])
     {
-        parent::__construct($id, new OptionStorage(), $config);
+        parent::__construct($id, new OptionStorage, $config);
     }
 
     public function register(): void

@@ -10,7 +10,7 @@ declare(strict_types=1);
  */
 
 // Загружаем WordPress моки из bootstrap
-require_once __DIR__.'/../../../tests/bootstrap.php';
+require_once __DIR__.'/bootstrap.php';
 
 // Загружаем WP_Field класс
 require_once __DIR__.'/../WP_Field.php';
@@ -537,6 +537,6 @@ class WP_Field_Tests_v2_4
 
 // Запуск тестов
 if (php_sapi_name() === 'cli') {
-    $tests = new WP_Field_Tests_v2_4();
+    $tests = new WP_Field_Tests_v2_4;
     $tests->run();
 }

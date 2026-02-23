@@ -363,5 +363,5 @@ class WP_Field_Tests
 }
 
 // Запуск тестов
-$tests = new WP_Field_Tests();
+$tests = new WP_Field_Tests;
 $tests->run();
