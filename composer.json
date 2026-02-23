@@ -2,7 +2,6 @@
   "name": "rwsite/wp-field",
   "description": "WP_Field — Universal HTML field generator for WordPress",
   "type": "wordpress-plugin",
-  "version": "2.1.0",
   "license": "proprietary",
   "authors": [
     {
