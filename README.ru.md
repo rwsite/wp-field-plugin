@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="wp-field.png" alt="WP_Field Screenshot" width="800">
+  <img src="placeholder.svg" alt="WP_Field Screenshot" width="800">
 </p>
 
 <h1 align="center">WP_Field</h1>
