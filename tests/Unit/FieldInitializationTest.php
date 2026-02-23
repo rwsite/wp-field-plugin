@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
@@ -9,7 +11,7 @@ class FieldInitializationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        require_once dirname(__DIR__, 2) . '/WP_Field.php';
+        require_once dirname(__DIR__, 2).'/WP_Field.php';
     }
 
     /** @test */
@@ -33,8 +35,8 @@ class FieldInitializationTest extends TestCase
     public function test_supports_field_aliases(): void
     {
         $field = new \WP_Field([
-            'id'    => 'test',
-            'type'  => 'text',
+            'id' => 'test',
+            'type' => 'text',
             'title' => 'Test Field',  // alias для label
         ], 'options');
 
@@ -45,10 +47,10 @@ class FieldInitializationTest extends TestCase
     public function test_supports_value_alias(): void
     {
         $field = new \WP_Field([
-            'id'    => 'test',
-            'type'  => 'text',
+            'id' => 'test',
+            'type' => 'text',
             'label' => 'Test',
-            'val'   => 'test value',  // alias для value
+            'val' => 'test value',  // alias для value
         ], 'options');
 
         $this->assertEquals('test value', $field->field['value']);
@@ -58,9 +60,9 @@ class FieldInitializationTest extends TestCase
     public function test_supports_custom_attributes_aliases(): void
     {
         $field = new \WP_Field([
-            'id'         => 'test',
-            'type'       => 'text',
-            'label'      => 'Test',
+            'id' => 'test',
+            'type' => 'text',
+            'label' => 'Test',
             'attributes' => ['data-test' => 'value'],  // alias для custom_attributes
         ], 'options');
 
@@ -71,8 +73,8 @@ class FieldInitializationTest extends TestCase
     public function test_creates_field_with_static_make(): void
     {
         $html = \WP_Field::make([[
-            'id'    => 'test',
-            'type'  => 'text',
+            'id' => 'test',
+            'type' => 'text',
             'label' => 'Test',
         ], 'options'], false);
 
@@ -85,8 +87,8 @@ class FieldInitializationTest extends TestCase
     {
         ob_start();
         $result = \WP_Field::make([[
-            'id'    => 'test',
-            'type'  => 'text',
+            'id' => 'test',
+            'type' => 'text',
             'label' => 'Test',
         ], 'options'], true);
         $output = ob_get_clean();
@@ -101,8 +103,8 @@ class FieldInitializationTest extends TestCase
     public function test_sets_default_storage_type(): void
     {
         $field = new \WP_Field([
-            'id'    => 'test',
-            'type'  => 'text',
+            'id' => 'test',
+            'type' => 'text',
             'label' => 'Test',
         ], 'post', 1);
 
@@ -116,8 +118,8 @@ class FieldInitializationTest extends TestCase
 
         foreach ($types as $type) {
             $field = new \WP_Field([
-                'id'    => 'test',
-                'type'  => 'text',
+                'id' => 'test',
+                'type' => 'text',
                 'label' => 'Test',
             ], $type, 1);
 
@@ -129,9 +131,9 @@ class FieldInitializationTest extends TestCase
     public function test_handles_field_with_default_value(): void
     {
         $field = new \WP_Field([
-            'id'      => 'test',
-            'type'    => 'text',
-            'label'   => 'Test',
+            'id' => 'test',
+            'type' => 'text',
+            'label' => 'Test',
             'default' => 'default value',
         ], 'options');
 
@@ -142,8 +144,8 @@ class FieldInitializationTest extends TestCase
     public function test_handles_field_with_explicit_value(): void
     {
         $field = new \WP_Field([
-            'id'    => 'test',
-            'type'  => 'text',
+            'id' => 'test',
+            'type' => 'text',
             'label' => 'Test',
             'value' => 'explicit value',
         ], 'options');
@@ -155,9 +157,9 @@ class FieldInitializationTest extends TestCase
     public function test_supports_field_with_options(): void
     {
         $field = new \WP_Field([
-            'id'      => 'test',
-            'type'    => 'select',
-            'label'   => 'Test',
+            'id' => 'test',
+            'type' => 'select',
+            'label' => 'Test',
             'options' => ['a' => 'Option A', 'b' => 'Option B'],
         ], 'options');
 
@@ -168,9 +170,9 @@ class FieldInitializationTest extends TestCase
     public function test_supports_field_with_nested_fields(): void
     {
         $field = new \WP_Field([
-            'id'     => 'test',
-            'type'   => 'group',
-            'label'  => 'Test',
+            'id' => 'test',
+            'type' => 'group',
+            'label' => 'Test',
             'fields' => [
                 ['id' => 'sub1', 'type' => 'text', 'label' => 'Sub 1'],
                 ['id' => 'sub2', 'type' => 'text', 'label' => 'Sub 2'],

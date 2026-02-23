@@ -1,0 +1,51 @@
+<?php
+
+declare(strict_types=1);
+
+use WpField\Storage\PostMetaStorage;
+
+beforeEach(function (): void {
+    $this->storage = new PostMetaStorage();
+    $this->postId = 1;
+});
+
+test('PostMetaStorage can set and get values', function (): void {
+    $key = 'test_meta_key';
+    $value = 'test_value';
+
+    $this->storage->set($key, $value, $this->postId);
+    $retrieved = $this->storage->get($key, $this->postId);
+
+    expect($retrieved)->toBe($value);
+});
+
+test('PostMetaStorage can check if key exists', function (): void {
+    $key = 'existing_key';
+    $value = 'some_value';
+
+    $this->storage->set($key, $value, $this->postId);
+
+    expect($this->storage->exists($key, $this->postId))->toBeTrue()
+        ->and($this->storage->exists('non_existing_key', $this->postId))->toBeFalse();
+});
+
+test('PostMetaStorage can delete values', function (): void {
+    $key = 'delete_test_key';
+    $value = 'delete_test_value';
+
+    $this->storage->set($key, $value, $this->postId);
+    expect($this->storage->exists($key, $this->postId))->toBeTrue();
+
+    $this->storage->delete($key, $this->postId);
+    expect($this->storage->exists($key, $this->postId))->toBeFalse();
+});
+
+test('PostMetaStorage handles arrays correctly', function (): void {
+    $key = 'array_key';
+    $value = ['item1', 'item2', 'item3'];
+
+    $this->storage->set($key, $value, $this->postId);
+    $retrieved = $this->storage->get($key, $this->postId);
+
+    expect($retrieved)->toBe($value);
+});

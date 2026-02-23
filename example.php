@@ -1,70 +1,71 @@
 <?php
 /**
  * WP_Field v2.3 — Примеры использования всех типов полей
- * 
+ *
  * Подключение: require_once 'path/to/example.php';
- * 
+ *
  * Добавляет страницу в меню "Инструменты" с демонстрацией всех 38 типов полей
  */
-
-if (!defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
 // Подключаем WP_Field если еще не подключен
-if (!class_exists('WP_Field')) {
-    require_once __DIR__ . '/WP_Field.php';
+if (! class_exists('WP_Field')) {
+    require_once __DIR__.'/WP_Field.php';
 }
 
-class WP_Field_Examples {
-    
-    public function __construct() {
+class WP_Field_Examples
+{
+    public function __construct()
+    {
         add_action('admin_menu', [$this, 'add_menu_page']);
         add_action('admin_init', [$this, 'save_settings']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
-        
+
         // Подключаем CodeMirror для code_editor
-        add_action('admin_enqueue_scripts', function($hook) {
+        add_action('admin_enqueue_scripts', function ($hook): void {
             if ($hook === 'tools_page_wp-field-examples') {
                 wp_enqueue_code_editor(['type' => 'text/css']);
             }
         });
     }
-    
+
     /**
      * Подключение необходимых скриптов и стилей
      */
-    public function enqueue_assets($hook) {
+    public function enqueue_assets($hook): void
+    {
         // Загружаем только на нашей странице
         if ($hook !== 'tools_page_wp-field-examples') {
             return;
         }
-        
+
         // WP встроенные скрипты
         wp_enqueue_script('jquery');
         wp_enqueue_script('jquery-ui-datepicker');
         wp_enqueue_script('jquery-ui-sortable');
-        
+
         // wp-color-picker для color полей (с зависимостью iris)
         wp_enqueue_script('iris');
         wp_enqueue_script('wp-color-picker');
         wp_enqueue_style('wp-color-picker');
-        
+
         // wp-media для media полей
         wp_enqueue_media();
-        
+
         // Наш JS для зависимостей и инициализации
         $wp_field_url = plugin_dir_url(__FILE__);
         $wp_field_ver = defined('WP_DEBUG') && WP_DEBUG ? time() : '2.3.0';
-        
+
         wp_enqueue_script(
             'wp-field-main',
-            $wp_field_url . 'assets/js/wp-field.js',
+            $wp_field_url.'assets/js/wp-field.js',
             ['jquery', 'wp-color-picker', 'jquery-ui-sortable'],
             $wp_field_ver,
-            true
+            true,
         );
-        
+
         // Добавляем inline скрипт для гарантированной инициализации Color Picker
         wp_add_inline_script('wp-field-main', '
             jQuery(document).ready(function($) {
@@ -80,32 +81,32 @@ class WP_Field_Examples {
                 }, 500);
             });
         ');
-        
+
         // Наш CSS
         wp_enqueue_style(
             'wp-field-main',
-            $wp_field_url . 'assets/css/wp-field.css',
+            $wp_field_url.'assets/css/wp-field.css',
             ['wp-color-picker'],
-            $wp_field_ver
+            $wp_field_ver,
         );
-        
+
         // Prism.js для подсветки синтаксиса
         wp_enqueue_style(
             'prism-css',
             'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css',
             [],
-            '1.29.0'
+            '1.29.0',
         );
-        
+
         // Используем полную версию Prism с поддержкой PHP
         wp_enqueue_script(
             'prism-js',
             'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js',
             [],
             '1.29.0',
-            true
+            true,
         );
-        
+
         // Добавляем поддержку PHP через data-атрибут
         wp_add_inline_script('prism-js', '
             if (typeof Prism !== "undefined") {
@@ -120,53 +121,56 @@ class WP_Field_Examples {
             }
         ', 'after');
     }
-    
+
     /**
      * Добавить страницу в меню Инструменты
      */
-    public function add_menu_page() {
+    public function add_menu_page(): void
+    {
         add_management_page(
             'WP_Field Examples',
             'WP_Field Examples',
             'manage_options',
             'wp-field-examples',
-            [$this, 'render_page']
+            [$this, 'render_page'],
         );
     }
-    
+
     /**
      * Сохранение настроек
      */
-    public function save_settings() {
-        if (!isset($_POST['wp_field_examples_nonce'])) {
+    public function save_settings(): void
+    {
+        if (! isset($_POST['wp_field_examples_nonce'])) {
             return;
         }
-        
-        if (!wp_verify_nonce($_POST['wp_field_examples_nonce'], 'wp_field_examples_save')) {
+
+        if (! wp_verify_nonce($_POST['wp_field_examples_nonce'], 'wp_field_examples_save')) {
             return;
         }
-        
-        if (!current_user_can('manage_options')) {
+
+        if (! current_user_can('manage_options')) {
             return;
         }
-        
+
         // Сохраняем все поля
         $fields = $this->get_all_fields();
         foreach ($fields as $section) {
             foreach ($section['fields'] as $field) {
                 if (isset($_POST[$field['id']])) {
-                    update_option('wpf_example_' . $field['id'], $_POST[$field['id']]);
+                    update_option('wpf_example_'.$field['id'], $_POST[$field['id']]);
                 }
             }
         }
-        
+
         add_settings_error('wp_field_examples', 'settings_updated', 'Настройки сохранены!', 'updated');
     }
-    
+
     /**
      * Рендер страницы
      */
-    public function render_page() {
+    public function render_page(): void
+    {
         ?>
         <div class="wrap">
             <h1>WP_Field v2.3 — Примеры всех типов полей</h1>
@@ -374,49 +378,51 @@ class WP_Field_Examples {
         </style>
         <?php
     }
-    
+
     /**
      * Рендер всех полей по категориям
      */
-    private function render_all_fields() {
+    private function render_all_fields(): void
+    {
         $sections = $this->get_all_fields();
-        
+
         foreach ($sections as $section) {
             echo '<div class="wp-field-section">';
-            echo '<h2>' . esc_html($section['title']) . '</h2>';
-            if (!empty($section['description'])) {
-                echo '<p class="description">' . esc_html($section['description']) . '</p>';
+            echo '<h2>'.esc_html($section['title']).'</h2>';
+            if (! empty($section['description'])) {
+                echo '<p class="description">'.esc_html($section['description']).'</p>';
             }
-            
+
             foreach ($section['fields'] as $field) {
                 $this->render_field_example($field);
             }
-            
+
             echo '</div>';
         }
     }
-    
+
     /**
      * Рендер примера одного поля
      */
-    private function render_field_example($field) {
+    private function render_field_example($field): void
+    {
         echo '<div class="wp-field-example">';
-        echo '<h3>' . esc_html($field['label']) . ' <code>' . esc_html($field['type']) . '</code></h3>';
-        
+        echo '<h3>'.esc_html($field['label']).' <code>'.esc_html($field['type']).'</code></h3>';
+
         // Описание поля
-        if (!empty($field['example_desc'])) {
+        if (! empty($field['example_desc'])) {
             echo '<div class="wp-field-description">';
-            echo '<p>' . wp_kses_post($field['example_desc']) . '</p>';
+            echo '<p>'.wp_kses_post($field['example_desc']).'</p>';
             echo '</div>';
         }
-        
+
         // Рендерим поле
         echo '<div class="wp-field-preview">';
         WP_Field::make($field, true, 'options');
         echo '</div>';
-        
+
         // Список аргументов
-        if (!empty($field['arguments'])) {
+        if (! empty($field['arguments'])) {
             echo '<details class="wp-field-arguments"><summary>📋 Список аргументов</summary>';
             echo '<table class="wp-field-args-table">';
             echo '<thead><tr><th>Аргумент</th><th>Тип</th><th>По умолчанию</th><th>Описание</th></tr></thead>';
@@ -427,44 +433,45 @@ class WP_Field_Examples {
                     esc_html($arg['name']),
                     esc_html($arg['type']),
                     esc_html($arg['default'] ?? '—'),
-                    esc_html($arg['desc'])
+                    esc_html($arg['desc']),
                 );
             }
             echo '</tbody></table>';
             echo '</details>';
         }
-        
+
         // Базовый пример кода
-        if (!empty($field['example_code'])) {
+        if (! empty($field['example_code'])) {
             echo '<details class="wp-field-code"><summary>💻 Базовый пример</summary>';
-            echo '<pre><code class="language-php">' . esc_html($field['example_code']) . '</code></pre>';
+            echo '<pre><code class="language-php">'.esc_html($field['example_code']).'</code></pre>';
             echo '</details>';
         }
-        
+
         // Расширенные примеры
-        if (!empty($field['advanced_examples'])) {
+        if (! empty($field['advanced_examples'])) {
             echo '<details class="wp-field-advanced"><summary>🚀 Расширенные примеры</summary>';
             foreach ($field['advanced_examples'] as $example) {
                 echo '<div class="wp-field-advanced-item">';
-                if (!empty($example['title'])) {
-                    echo '<h4>' . esc_html($example['title']) . '</h4>';
+                if (! empty($example['title'])) {
+                    echo '<h4>'.esc_html($example['title']).'</h4>';
                 }
-                if (!empty($example['desc'])) {
-                    echo '<p>' . esc_html($example['desc']) . '</p>';
+                if (! empty($example['desc'])) {
+                    echo '<p>'.esc_html($example['desc']).'</p>';
                 }
-                echo '<pre><code class="language-php">' . esc_html($example['code']) . '</code></pre>';
+                echo '<pre><code class="language-php">'.esc_html($example['code']).'</code></pre>';
                 echo '</div>';
             }
             echo '</details>';
         }
-        
+
         echo '</div>';
     }
-    
+
     /**
      * Общие аргументы для всех полей
      */
-    private function get_common_arguments() {
+    private function get_common_arguments()
+    {
         return [
             ['name' => 'id', 'type' => 'string', 'default' => '—', 'desc' => 'Уникальный идентификатор (обязательно)'],
             ['name' => 'type', 'type' => 'string', 'default' => 'text', 'desc' => 'Тип поля'],
@@ -476,28 +483,32 @@ class WP_Field_Examples {
             ['name' => 'attributes', 'type' => 'array', 'default' => '[]', 'desc' => 'HTML атрибуты'],
         ];
     }
-    
+
     /**
      * Получить расширенные данные для типа поля
      * Примечание: все данные теперь встроены в example.php
      */
-    private function get_field_data($type) {
+    private function get_field_data($type)
+    {
         // field-data.php удалён, все примеры встроены в example.php
         return ['arguments' => [], 'advanced_examples' => []];
     }
-    
+
     /**
      * Объединить общие и специфичные аргументы
      */
-    private function merge_arguments($type, $specific_args = []) {
+    private function merge_arguments($type, $specific_args = [])
+    {
         $common = $this->get_common_arguments();
+
         return array_merge($common, $specific_args);
     }
-    
+
     /**
      * Получить все поля для демонстрации
      */
-    private function get_all_fields() {
+    private function get_all_fields()
+    {
         return [
             // Базовые поля
             [
@@ -527,19 +538,19 @@ class WP_Field_Examples {
                             [
                                 'title' => 'С валидацией и классом',
                                 'desc' => 'Добавление CSS класса и HTML атрибутов для валидации',
-                                'code' => "WP_Field::make([\n    'id' => 'username',\n    'type' => 'text',\n    'label' => 'Имя пользователя',\n    'placeholder' => 'Только латиница и цифры',\n    'class' => 'regular-text',\n    'attributes' => [\n        'pattern' => '[a-zA-Z0-9]+',\n        'required' => true,\n        'minlength' => 3,\n        'maxlength' => 20\n    ],\n    'desc' => 'От 3 до 20 символов'\n]);"
+                                'code' => "WP_Field::make([\n    'id' => 'username',\n    'type' => 'text',\n    'label' => 'Имя пользователя',\n    'placeholder' => 'Только латиница и цифры',\n    'class' => 'regular-text',\n    'attributes' => [\n        'pattern' => '[a-zA-Z0-9]+',\n        'required' => true,\n        'minlength' => 3,\n        'maxlength' => 20\n    ],\n    'desc' => 'От 3 до 20 символов'\n]);",
                             ],
                             [
                                 'title' => 'С зависимостью от другого поля',
                                 'desc' => 'Поле отображается только если включен чекбокс',
-                                'code' => "WP_Field::make([\n    'id' => 'custom_text',\n    'type' => 'text',\n    'label' => 'Пользовательский текст',\n    'dependency' => [\n        ['enable_custom', '==', '1']\n    ]\n]);"
+                                'code' => "WP_Field::make([\n    'id' => 'custom_text',\n    'type' => 'text',\n    'label' => 'Пользовательский текст',\n    'dependency' => [\n        ['enable_custom', '==', '1']\n    ]\n]);",
                             ],
                             [
                                 'title' => 'Для post meta',
                                 'desc' => 'Сохранение в метаполе записи',
-                                'code' => "// В metabox callback:\n\$post_id = get_the_ID();\n\nWP_Field::make([\n    'id' => 'custom_title',\n    'type' => 'text',\n    'label' => 'Дополнительный заголовок'\n], true, 'post', \$post_id);\n\n// Получение значения:\n\$value = get_post_meta(\$post_id, 'custom_title', true);"
-                            ]
-                        ]
+                                'code' => "// В metabox callback:\n\$post_id = get_the_ID();\n\nWP_Field::make([\n    'id' => 'custom_title',\n    'type' => 'text',\n    'label' => 'Дополнительный заголовок'\n], true, 'post', \$post_id);\n\n// Получение значения:\n\$value = get_post_meta(\$post_id, 'custom_title', true);",
+                            ],
+                        ],
                     ],
                     [
                         'id' => 'password_field',
@@ -605,7 +616,7 @@ class WP_Field_Examples {
                     ], $this->get_field_data('textarea')),
                 ],
             ],
-            
+
             // Выборные поля
             [
                 'title' => '2. Выборные поля (5)',
@@ -669,7 +680,7 @@ class WP_Field_Examples {
                     ],
                 ],
             ],
-            
+
             // Продвинутые поля
             [
                 'title' => '3. Продвинутые поля (9)',
@@ -852,7 +863,7 @@ class WP_Field_Examples {
                     ],
                 ],
             ],
-            
+
             // Простые поля v2.1
             [
                 'title' => '4. Простые поля v2.1 (9)',
@@ -965,7 +976,7 @@ class WP_Field_Examples {
                     ],
                 ],
             ],
-            
+
             // Композитные поля
             [
                 'title' => '5. Композитные поля (2)',
@@ -997,7 +1008,7 @@ class WP_Field_Examples {
                     ], $this->get_field_data('repeater')),
                 ],
             ],
-            
+
             // Средней сложности v2.2
             [
                 'title' => '6. Средней сложности v2.2 (10)',
@@ -1027,19 +1038,19 @@ class WP_Field_Examples {
                             [
                                 'title' => 'Аккордеон с полями',
                                 'desc' => 'Аккордеон с редактируемыми полями внутри разделов',
-                                'code' => "WP_Field::make([\n    'id' => 'settings_accordion',\n    'type' => 'accordion',\n    'label' => 'Настройки',\n    'items' => [\n        [\n            'title' => 'Основные',\n            'open' => true,\n            'fields' => [\n                ['id' => 'site_name', 'type' => 'text', 'label' => 'Название сайта'],\n                ['id' => 'site_desc', 'type' => 'textarea', 'label' => 'Описание']\n            ]\n        ],\n        [\n            'title' => 'Дизайн',\n            'fields' => [\n                ['id' => 'primary_color', 'type' => 'color', 'label' => 'Основной цвет'],\n                ['id' => 'secondary_color', 'type' => 'color', 'label' => 'Дополнительный цвет']\n            ]\n        ]\n    ]\n]);"
+                                'code' => "WP_Field::make([\n    'id' => 'settings_accordion',\n    'type' => 'accordion',\n    'label' => 'Настройки',\n    'items' => [\n        [\n            'title' => 'Основные',\n            'open' => true,\n            'fields' => [\n                ['id' => 'site_name', 'type' => 'text', 'label' => 'Название сайта'],\n                ['id' => 'site_desc', 'type' => 'textarea', 'label' => 'Описание']\n            ]\n        ],\n        [\n            'title' => 'Дизайн',\n            'fields' => [\n                ['id' => 'primary_color', 'type' => 'color', 'label' => 'Основной цвет'],\n                ['id' => 'secondary_color', 'type' => 'color', 'label' => 'Дополнительный цвет']\n            ]\n        ]\n    ]\n]);",
                             ],
                             [
                                 'title' => 'С дефолтным открытым разделом',
                                 'desc' => 'Указание, какой раздел открыт по умолчанию',
-                                'code' => "WP_Field::make([\n    'id' => 'default_accordion',\n    'type' => 'accordion',\n    'label' => 'Аккордеон с дефолтом',\n    'items' => [\n        ['title' => 'Раздел 1', 'content' => 'Содержимое...'],\n        ['title' => 'Раздел 2', 'content' => 'Содержимое...', 'open' => true],\n        ['title' => 'Раздел 3', 'content' => 'Содержимое...']\n    ]\n]);"
+                                'code' => "WP_Field::make([\n    'id' => 'default_accordion',\n    'type' => 'accordion',\n    'label' => 'Аккордеон с дефолтом',\n    'items' => [\n        ['title' => 'Раздел 1', 'content' => 'Содержимое...'],\n        ['title' => 'Раздел 2', 'content' => 'Содержимое...', 'open' => true],\n        ['title' => 'Раздел 3', 'content' => 'Содержимое...']\n    ]\n]);",
                             ],
                             [
                                 'title' => 'Кастомные иконки',
                                 'desc' => 'Использование собственных иконок для аккордеона',
-                                'code' => "WP_Field::make([\n    'id' => 'custom_accordion',\n    'type' => 'accordion',\n    'label' => 'Кастомный аккордеон',\n    'open_icon' => '−',\n    'close_icon' => '+',\n    'items' => [\n        ['title' => 'Раздел 1', 'content' => 'Содержимое...'],\n        ['title' => 'Раздел 2', 'content' => 'Содержимое...']\n    ]\n]);"
-                            ]
-                        ]
+                                'code' => "WP_Field::make([\n    'id' => 'custom_accordion',\n    'type' => 'accordion',\n    'label' => 'Кастомный аккордеон',\n    'open_icon' => '−',\n    'close_icon' => '+',\n    'items' => [\n        ['title' => 'Раздел 1', 'content' => 'Содержимое...'],\n        ['title' => 'Раздел 2', 'content' => 'Содержимое...']\n    ]\n]);",
+                            ],
+                        ],
                     ],
                     [
                         'id' => 'tabbed_field',
@@ -1128,15 +1139,15 @@ class WP_Field_Examples {
                         'options' => [
                             'layout1' => [
                                 'src' => plugins_url('placeholder.svg', __FILE__),
-                                'label' => 'Макет 1'
+                                'label' => 'Макет 1',
                             ],
                             'layout2' => [
                                 'src' => plugins_url('placeholder.svg', __FILE__),
-                                'label' => 'Макет 2'
+                                'label' => 'Макет 2',
                             ],
                             'layout3' => [
                                 'src' => plugins_url('placeholder.svg', __FILE__),
-                                'label' => 'Макет 3'
+                                'label' => 'Макет 3',
                             ],
                         ],
                         'desc' => 'Визуальный выбор через изображения (например, макеты)',
@@ -1145,7 +1156,7 @@ class WP_Field_Examples {
                     ], $this->get_field_data('image_select')),
                 ],
             ],
-            
+
             // Высокой сложности v2.3
             [
                 'title' => '7. Высокой сложности v2.3 (8)',
@@ -1173,19 +1184,19 @@ class WP_Field_Examples {
                             [
                                 'title' => 'Кастомный набор иконок',
                                 'desc' => 'Использование собственного набора иконок (например, Font Awesome)',
-                                'code' => "WP_Field::make([\n    'id' => 'custom_icon',\n    'type' => 'icon',\n    'label' => 'Выберите иконку',\n    'library' => 'fa',\n    'icons' => [\n        'fa-home',\n        'fa-user',\n        'fa-cog',\n        'fa-heart',\n        'fa-star',\n        'fa-check',\n        'fa-times',\n        'fa-search'\n    ]\n]);"
+                                'code' => "WP_Field::make([\n    'id' => 'custom_icon',\n    'type' => 'icon',\n    'label' => 'Выберите иконку',\n    'library' => 'fa',\n    'icons' => [\n        'fa-home',\n        'fa-user',\n        'fa-cog',\n        'fa-heart',\n        'fa-star',\n        'fa-check',\n        'fa-times',\n        'fa-search'\n    ]\n]);",
                             ],
                             [
                                 'title' => 'Регистрация библиотеки через фильтр',
                                 'desc' => 'Добавление собственной библиотеки иконок через wp_field_icon_library фильтр',
-                                'code' => "// В functions.php:\nadd_filter('wp_field_icon_library', function(\$icons, \$library) {\n    if (\$library === 'custom') {\n        return [\n            'custom-icon-1',\n            'custom-icon-2',\n            'custom-icon-3',\n            'custom-icon-home',\n            'custom-icon-user',\n            'custom-icon-settings'\n        ];\n    }\n    return \$icons;\n}, 10, 2);\n\n// Использование:\nWP_Field::make([\n    'id' => 'my_icon',\n    'type' => 'icon',\n    'label' => 'Выберите иконку',\n    'library' => 'custom'\n]);"
+                                'code' => "// В functions.php:\nadd_filter('wp_field_icon_library', function(\$icons, \$library) {\n    if (\$library === 'custom') {\n        return [\n            'custom-icon-1',\n            'custom-icon-2',\n            'custom-icon-3',\n            'custom-icon-home',\n            'custom-icon-user',\n            'custom-icon-settings'\n        ];\n    }\n    return \$icons;\n}, 10, 2);\n\n// Использование:\nWP_Field::make([\n    'id' => 'my_icon',\n    'type' => 'icon',\n    'label' => 'Выберите иконку',\n    'library' => 'custom'\n]);",
                             ],
                             [
                                 'title' => 'Получение выбранной иконки',
                                 'desc' => 'Использование выбранной иконки на фронтенде',
-                                'code' => "\$icon = get_option('icon_field');\nif (\$icon) {\n    echo '<i class=\"dashicons ' . esc_attr(\$icon) . '\"></i>';\n    echo ' ' . esc_html(\$icon);\n}"
-                            ]
-                        ]
+                                'code' => "\$icon = get_option('icon_field');\nif (\$icon) {\n    echo '<i class=\"dashicons ' . esc_attr(\$icon) . '\"></i>';\n    echo ' ' . esc_html(\$icon);\n}",
+                            ],
+                        ],
                     ],
                     [
                         'id' => 'sortable_field',
@@ -1255,7 +1266,7 @@ class WP_Field_Examples {
                     ],
                 ],
             ],
-            
+
             // Система зависимостей
             [
                 'title' => '8. Система зависимостей',

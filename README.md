@@ -5,9 +5,9 @@
 <h1 align="center">WP_Field</h1>
 
 <p align="center">
-  <strong>Universal HTML Field Generator for WordPress</strong><br>
-  Minimalist, extensible library for creating fields in WordPress with support for:<br>
-  52 field types, dependency system, all storage types, and built-in WP components.
+  <strong>Modern Laravel-Style Field Generator for WordPress</strong><br>
+  Fluent API, 50+ field types, React UI, Repeater/Flexible Content fields,<br>
+  complete storage strategies, and 100% backward compatibility.
 </p>
 
 <p align="center">
@@ -30,74 +30,133 @@
 
 ## Features
 
-- 🚀 **52 Field Types** — Basic, choice, advanced, composite, and specialized fields
-- 🔗 **Dependency System** — 12 operators with AND/OR logic for field visibility
-- 📦 **Multiple Storages** — Post meta, options, term meta, user meta, comment meta
-- 🎨 **WP Components** — wp_editor, wp-color-picker, wp.media, CodeMirror integration
-- 🔌 **Zero Dependencies** — Uses only built-in WordPress scripts and components
-- 🌍 **i18n Ready** — Translations included (Russian)
-- 📊 **Interactive Demo** — Live examples page in WordPress admin
+### v3.0 — Modern Laravel-Style API
+- ✨ **Fluent Interface** — Chain methods like Laravel: `Field::text('name')->label('Name')->required()`
+- 🔁 **Repeater Fields** — Infinite nesting support with min/max constraints
+- 🎨 **Flexible Content** — ACF-style layout builder with multiple block types
+- ⚛️ **React UI** — Modern React components with Vanilla JS fallback
+- 🔄 **Legacy Adapter** — 100% backward compatibility with v2.x API
+- 🏗️ **SOLID Architecture** — Interfaces, traits, dependency injection
+- 📦 **Storage Strategies** — PostMeta, TermMeta, UserMeta, Options, CustomTable
+- � **Type Safety** — PHPStan Level 9, strict types, full PHPDoc
+
+### Core Features
+- � **50+ Field Types** — Text, select, repeater, flexible content, and more
+- 🔗 **Conditional Logic** — 14 operators with AND/OR relations
+- 🧪 **Full Test Coverage** — Pest/PHPUnit tests with 100% pass rate
+- 🎨 **WP Components** — Native WordPress UI integration
+- 🌍 **i18n Ready** — Multilingual support
 
 ## Requirements
 
 - PHP 8.0+
-- WordPress 4.6+
+- WordPress 6.0+
+- Composer (for installation)
 
 ## Installation
 
-1. Clone or download to `wp-content/plugins/wp-field`
-2. Run `composer install`
-3. Activate the plugin
+### Via Composer (Recommended)
+
+```bash
+composer require rwsite/wp-field
+```
+
+### Manual Installation
+
+1. Clone or download to `wp-content/plugins/wp-field-plugin`
+2. Run `composer install --no-dev`
+3. Activate the plugin in WordPress admin
+
+### Build React Components (Optional)
+
+```bash
+npm install
+npm run build
+```
 
 ## Quick Start
 
-### Simple Text Field
+### Modern API (v3.0)
 
 ```php
-// Simple text field
-WP_Field::make([
-    'id'    => 'shop_name',
-    'type'  => 'text',
-    'label' => 'Shop Name',
+use WpField\Field\Field;
+use WpField\Container\MetaboxContainer;
+
+// Fluent interface
+$field = Field::text('email')
+    ->label('Email Address')
+    ->placeholder('user@example.com')
+    ->required()
+    ->email()
+    ->class('regular-text');
+
+// Render field
+echo $field->render();
+
+// Create metabox with fields
+$metabox = new MetaboxContainer('product_details', [
+    'title' => 'Product Details',
+    'post_types' => ['product'],
 ]);
 
-// Select with dependency
-WP_Field::make([
-    'id'      => 'delivery_type',
-    'type'    => 'select',
-    'label'   => 'Delivery Type',
-    'options' => ['courier' => 'Courier', 'pickup' => 'Pickup'],
-]);
+$metabox->addField(
+    Field::text('sku')->label('SKU')->required()
+);
 
-WP_Field::make([
-    'id'    => 'delivery_address',
-    'type'  => 'text',
-    'label' => 'Delivery Address',
-    'dependency' => [
-        ['delivery_type', '==', 'courier'],
-    ],
-]);
+$metabox->addField(
+    Field::text('price')->label('Price')->required()
+);
+
+$metabox->register();
 ```
 
-### Dispatching Fields
+### Repeater Field
 
 ```php
-use WP_Field\WP_Field;
+$repeater = Field::repeater('team_members')
+    ->label('Team Members')
+    ->fields([
+        Field::text('name')->label('Name')->required(),
+        Field::text('position')->label('Position'),
+        Field::text('email')->label('Email')->email(),
+    ])
+    ->min(1)
+    ->max(10)
+    ->buttonLabel('Add Member')
+    ->layout('table');
+```
 
-// Dispatch to output
-WP_Field::make($field_config, true, 'post', $post_id);
+### Flexible Content Field
 
-// Save to options
-WP_Field::make($field_config, false, 'options');
+```php
+$flexible = Field::flexibleContent('page_sections')
+    ->label('Page Sections')
+    ->addLayout('text_block', 'Text Block', [
+        Field::text('heading')->label('Heading'),
+        Field::text('content')->label('Content'),
+    ])
+    ->addLayout('image', 'Image', [
+        Field::text('image_url')->label('Image URL')->url(),
+        Field::text('caption')->label('Caption'),
+    ])
+    ->min(1)
+    ->buttonLabel('Add Section');
+```
 
-// Term meta
-WP_Field::make($field_config, false, 'term', $term_id);
+### Legacy API (v2.x - Still Supported)
 
-// User meta
-WP_Field::make($field_config, false, 'user', $user_id);
+```php
+use WpField\Legacy\LegacyAdapter;
 
-// Comment meta
-WP_Field::make($field_config, false, 'comment', $comment_id);
+// Old array-based API
+$field = LegacyAdapter::make([
+    'id' => 'shop_name',
+    'type' => 'text',
+    'label' => 'Shop Name',
+    'required' => true,
+]);
+
+echo $field->render();
 ```
 
 ## Field Types (52)

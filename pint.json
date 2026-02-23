@@ -3,6 +3,7 @@
     "paths": [
         "WP_Field.php",
         "example.php",
+        "src",
         "tests"
     ],
     "rules": {
