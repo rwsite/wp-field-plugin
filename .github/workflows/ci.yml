@@ -13,7 +13,7 @@ jobs:
     
     strategy:
       matrix:
-        php-version: ['8.0', '8.1', '8.2', '8.3']
+        php-version: ['8.3', '8.4', '8.5']
     
     steps:
       - name: Checkout code
@@ -36,7 +36,7 @@ jobs:
         run: composer test
       
       - name: Run tests with coverage
-        if: matrix.php-version == '8.3'
+        if: matrix.php-version == '8.5'
         run: composer test:coverage
 
   analyse:
@@ -50,7 +50,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.5'
           extensions: mbstring, xml, ctype, json
       
       - name: Install dependencies
@@ -70,7 +70,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.5'
           extensions: mbstring, xml, ctype, json
       
       - name: Install dependencies

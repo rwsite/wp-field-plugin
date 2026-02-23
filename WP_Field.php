@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Plugin Name: WP_Field — Modern Laravel-Style Field Generator
+ * Plugin Name: WP_Field — HTML Fields Library for WordPress
  * Plugin URI:  https://github.com/rwsite/wp-field-plugin
- * Description: Modern Laravel-style field generator for WordPress with 50+ field types, fluent API, React UI, repeater/flexible content fields, conditional logic, and complete storage strategies. 100% backward compatible with v2.x.
+ * Description: HTML fields library for WordPress, designed as a foundation for custom frameworks, settings systems, and admin UI builders. Includes Fluent API, 48 unique field types (+4 aliases), and React/Vanilla UI.
  * Version:     3.0.0
  * Requires at least: 6.0
  * Tested up to: 7.0
- * Requires PHP: 8.0
+ * Requires PHP: 8.3
  * Author:      Aleksei Tikhomirov
  * Author URI:  https://rwsite.ru
  * License:     GPL-2.0-or-later
@@ -16,23 +16,49 @@
  * Domain Path: /lang/
  *
  * How to use (v3.0): Field::text('email')->label('Email')->required()->render();
- * Legacy (v2.x): WP_Field::make(['id' => 'new_id', 'label' => 'New input']);
  */
 
 declare(strict_types=1);
 
-if (! defined('ABSPATH') || class_exists('WP_Field')) {
+if (! defined('ABSPATH')) {
     return;
 }
 
-// Composer autoloader
+// Оставим только автозагрузчик здесь
 if (file_exists(__DIR__.'/vendor/autoload.php')) {
     require_once __DIR__.'/vendor/autoload.php';
+} else {
+    // Fallback autoloader for environments without Composer
+    spl_autoload_register(function ($class): void {
+        $prefix = 'WpField\\';
+        $base_dir = __DIR__.'/src/';
+
+        // Does the class use the namespace prefix?
+        $len = strlen($prefix);
+        if (strncmp($prefix, $class, $len) !== 0) {
+            return;
+        }
+
+        // Get the relative class name
+        $relative_class = substr($class, $len);
+
+        // Replace the namespace prefix with the base directory, replace namespace
+        // separators with directory separators in the relative class name, append
+        // with .php
+        $file = $base_dir.str_replace('\\', '/', $relative_class).'.php';
+
+        // If the file exists, require it
+        if (file_exists($file)) {
+            require $file;
+        }
+    });
 }
 
-// Examples page
-require_once __DIR__.'/example.php';
-
+/**
+ * Legacy API for WP_Field.
+ *
+ * @deprecated 3.0.0 Use modern \WpField\Field\Field instead.
+ */
 #[AllowDynamicProperties]
 class WP_Field
 {
@@ -87,7 +113,7 @@ class WP_Field
 
     public string $url;
 
-    public string $ver = '2.4.0';
+    public string $ver = '3.0.0';
 
     public function __construct($field, string $storage_type = 'post', $storage_id = null)
     {
@@ -97,7 +123,7 @@ class WP_Field
         $this->storage_id = $storage_id;
 
         if (! isset($this->storage_id) && $storage_type === 'post') {
-            $this->storage_id = get_the_ID();
+            $this->storage_id = function_exists('get_the_ID') ? get_the_ID() : 0;
         }
 
         // Нормализация алиасов полей
@@ -108,8 +134,8 @@ class WP_Field
         $this->field = $this->validate_field_data($field);
 
         $this->file = self::file;
-        $this->url = plugin_dir_url($this->file);
-        $this->ver = defined('WP_DEBUG') && WP_DEBUG ? time() : $this->ver;
+        $this->url = function_exists('plugin_dir_url') ? plugin_dir_url($this->file) : '/wp-content/plugins/wp-field-plugin/';
+        $this->ver = defined('WP_DEBUG') && WP_DEBUG ? (string) time() : $this->ver;
 
         // Однократная инициализация assets
         $this->maybe_enqueue_assets();
@@ -212,8 +238,15 @@ class WP_Field
             parse_str($str, $field);
         }
 
-        if (empty($field) || ! isset($field['id'], $field['type'], $field['label']) || ! is_array($field)) {
+        if (empty($field) || ! isset($field['id'], $field['type']) || ! is_array($field)) {
             trigger_error('!!! Incorrect field data '.print_r($field, true));
+
+            return 'Incorrect field data';
+        }
+
+        // label required for most fields but not all (e.g. fieldset has legend)
+        if (! isset($field['label']) && ! in_array($field['type'], ['fieldset', 'content', 'notice', 'heading', 'subheading'], true)) {
+            trigger_error('!!! Incorrect field data (missing label) '.print_r($field, true));
 
             return 'Incorrect field data';
         }
@@ -226,13 +259,15 @@ class WP_Field
      */
     private function maybe_enqueue_assets(): void
     {
-        if (self::$assets_enqueued || ! is_admin()) {
+        if (self::$assets_enqueued || (function_exists('is_admin') && ! is_admin())) {
             return;
         }
 
         self::$assets_enqueued = true;
 
-        add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
+        if (function_exists('add_action')) {
+            add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
+        }
     }
 
     /**
@@ -341,42 +376,49 @@ class WP_Field
      */
     public function get_value(string $key, $id = null)
     {
-        $id = absint($id);
+        $id = function_exists('absint') ? absint($id) : (int) $id;
 
         // Позволяем расширить типы хранилищ через фильтр
-        $value = apply_filters('wp_field_get_value', null, $this->storage_type, $key, $id, $this->field);
-        if ($value !== null) {
-            return $value;
+        if (function_exists('apply_filters')) {
+            $value = apply_filters('wp_field_get_value', null, $this->storage_type, $key, $id, $this->field);
+            if ($value !== null) {
+                return $value;
+            }
         }
 
         switch ($this->storage_type) {
             case 'options':
-                return get_option($key, null);
+                return function_exists('get_option') ? get_option($key, null) : null;
 
             case 'term':
-                return get_term_meta($id, $key, true);
+                return function_exists('get_term_meta') ? get_term_meta($id, $key, true) : null;
 
             case 'user':
-                return get_user_meta($id, $key, true);
+                return function_exists('get_user_meta') ? get_user_meta($id, $key, true) : null;
 
             case 'comment':
-                return get_comment_meta($id, $key, true);
+                return function_exists('get_comment_meta') ? get_comment_meta($id, $key, true) : null;
 
             case 'nav_menu_item':
-                return get_post_meta($id, $key, true); // nav_menu_item - это посты
+                return function_exists('get_post_meta') ? get_post_meta($id, $key, true) : null; // nav_menu_item - это посты
 
             case 'site_option':
-                return get_site_option($key, null);
+                return function_exists('get_site_option') ? get_site_option($key, null) : null;
 
             case 'attachment':
-                return get_post_meta($id, $key, true); // attachment - это посты
+                return function_exists('get_post_meta') ? get_post_meta($id, $key, true) : null; // attachment - это посты
 
             case 'custom_table':
                 return $this->get_custom_table_value($key, $id);
 
             case 'post':
             default:
-                return get_post_meta($id ?: get_the_ID(), $key, true);
+                $post_id = $id;
+                if (! $post_id && function_exists('get_the_ID')) {
+                    $post_id = get_the_ID();
+                }
+
+                return function_exists('get_post_meta') ? get_post_meta($post_id, $key, true) : null;
         }
     }
 
@@ -443,7 +485,7 @@ class WP_Field
         if (! empty($field['desc'])) {
             printf(
                 '<p class="description">%s</p>',
-                wp_kses_post($field['desc']),
+                function_exists('wp_kses_post') ? wp_kses_post($field['desc']) : $field['desc'],
             );
         }
     }
@@ -460,10 +502,10 @@ class WP_Field
             esc_attr($field['class'] ?? 'regular-text'),
             esc_attr($field['id']),
             esc_attr($field['name'] ?? $field['id']),
-            esc_attr($this->get_field_value($field)),
-            isset($field['min']) ? 'min="'.esc_attr($field['min']).'"' : '',
-            isset($field['max']) ? 'max="'.esc_attr($field['max']).'"' : '',
-            isset($field['step']) ? 'step="'.esc_attr($field['step']).'"' : '',
+            esc_attr((string) $this->get_field_value($field)),
+            isset($field['min']) ? 'min="'.esc_attr((string) $field['min']).'"' : '',
+            isset($field['max']) ? 'max="'.esc_attr((string) $field['max']).'"' : '',
+            isset($field['step']) ? 'step="'.esc_attr((string) $field['step']).'"' : '',
             $this->get_field_attributes($field),
             $this->get_readonly_disabled($field),
         );
@@ -483,10 +525,10 @@ class WP_Field
             esc_attr($field['class'] ?? 'regular-text'),
             esc_attr($field['id']),
             esc_attr($field['name'] ?? $field['id']),
-            absint($field['rows'] ?? 5),
+            function_exists('absint') ? absint($field['rows'] ?? 5) : (int) ($field['rows'] ?? 5),
             $this->get_field_attributes($field),
             $this->get_readonly_disabled($field),
-            esc_textarea($this->get_field_value($field)),
+            function_exists('esc_textarea') ? esc_textarea($this->get_field_value($field)) : htmlspecialchars($this->get_field_value($field), ENT_QUOTES),
         );
 
         $this->render_description($field);
@@ -683,11 +725,18 @@ class WP_Field
                 'wpautop' => ! empty($field['wpautop']),
                 'media_buttons' => ! empty($field['media_buttons']),
                 'textarea_name' => $field['name'] ?? $field['id'],
-                'textarea_rows' => absint($field['rows'] ?? 10),
+                'textarea_rows' => function_exists('absint') ? absint($field['rows'] ?? 10) : (int) ($field['rows'] ?? 10),
                 'teeny' => ! empty($field['teeny']),
             ]);
         } else {
-            trigger_error('wp_editor не найден');
+            // Fallback for tests or outside WP
+            printf(
+                '<textarea id="%s" name="%s" rows="%d" class="wp-editor-area">%s</textarea>',
+                esc_attr($field['id']),
+                esc_attr($field['name'] ?? $field['id']),
+                function_exists('absint') ? absint($field['rows'] ?? 10) : (int) ($field['rows'] ?? 10),
+                function_exists('esc_textarea') ? esc_textarea($this->get_field_value($field)) : htmlspecialchars($this->get_field_value($field), ENT_QUOTES),
+            );
         }
 
         $this->render_description($field);
@@ -703,8 +752,8 @@ class WP_Field
         $value = $this->get_field_value($field);
         $preview = ! empty($field['preview']) ? $field['preview'] : true;
         $url = ! empty($field['url']) ? $field['url'] : true;
-        $placeholder = $field['placeholder'] ?? __('Не выбрано', 'wp-field');
-        $button_text = $field['button_text'] ?? __('Загрузить', 'wp-field');
+        $placeholder = $field['placeholder'] ?? (function_exists('__') ? __('Не выбрано', 'wp-field') : 'Не выбрано');
+        $button_text = $field['button_text'] ?? (function_exists('__') ? __('Загрузить', 'wp-field') : 'Загрузить');
         $library = $field['library'] ?? ''; // image, video, audio
 
         // Получаем URL файла если есть ID
@@ -777,9 +826,9 @@ class WP_Field
         $src = is_numeric($value) ? wp_get_attachment_url($value) : $value;
         $preview = ! empty($field['preview']) ? $field['preview'] : true;
         $url = ! empty($field['url']) ? $field['url'] : true;
-        $placeholder = $field['placeholder'] ?? __('Не выбрано', 'wp-field');
-        $button_text = $field['button_text'] ?? __('Загрузить', 'wp-field');
-        $remove_text = $field['remove_text'] ?? __('Удалить', 'wp-field');
+        $placeholder = $field['placeholder'] ?? (function_exists('__') ? __('Не выбрано', 'wp-field') : 'Не выбрано');
+        $button_text = $field['button_text'] ?? (function_exists('__') ? __('Загрузить', 'wp-field') : 'Загрузить');
+        $remove_text = $field['remove_text'] ?? (function_exists('__') ? __('Удалить', 'wp-field') : 'Удалить');
 
         echo '<div class="wp-field-image-wrapper">';
 
@@ -836,8 +885,8 @@ class WP_Field
 
         $value = $this->get_field_value($field);
         $url = ! empty($field['url']) ? $field['url'] : true;
-        $placeholder = $field['placeholder'] ?? __('Не выбрано', 'wp-field');
-        $button_text = $field['button_text'] ?? __('Загрузить', 'wp-field');
+        $placeholder = $field['placeholder'] ?? (function_exists('__') ? __('Не выбрано', 'wp-field') : 'Не выбрано');
+        $button_text = $field['button_text'] ?? (function_exists('__') ? __('Загрузить', 'wp-field') : 'Загрузить');
         $library = $field['library'] ?? ''; // image, video, audio
 
         // Получаем URL файла если есть ID
@@ -896,11 +945,11 @@ class WP_Field
         $this->render_label($field);
 
         $value = $this->get_field_value($field);
-        $ids = is_array($value) ? $value : array_filter(explode(',', $value));
+        $ids = is_array($value) ? $value : array_filter(explode(',', (string) $value));
 
-        $add_text = $field['add_button'] ?? __('Добавить галерею', 'wp-field');
-        $edit_text = $field['edit_button'] ?? __('Редактировать галерею', 'wp-field');
-        $remove_text = $field['clear_button'] ?? __('Сброс', 'wp-field');
+        $add_text = $field['add_button'] ?? (function_exists('__') ? __('Добавить галерею', 'wp-field') : 'Добавить галерею');
+        $edit_text = $field['edit_button'] ?? (function_exists('__') ? __('Редактировать галерею', 'wp-field') : 'Редактировать галерею');
+        $remove_text = $field['clear_button'] ?? (function_exists('__') ? __('Сброс', 'wp-field') : 'Сброс');
 
         echo '<div class="wp-field-gallery-wrapper">';
 
@@ -1035,6 +1084,15 @@ class WP_Field
             ob_start();
         }
 
+        if (! is_array($this->field)) {
+            echo esc_html((string) $this->field);
+            if (! $output) {
+                return ob_get_clean();
+            }
+
+            return;
+        }
+
         // Определяем видимость по зависимостям
         $is_hidden = $this->is_field_hidden();
         $hidden_class = $is_hidden ? ' is-hidden' : '';
@@ -1142,7 +1200,7 @@ class WP_Field
             return '';
         }
 
-        return wp_json_encode($this->field['dependency']);
+        return function_exists('wp_json_encode') ? wp_json_encode($this->field['dependency']) : json_encode($this->field['dependency']);
     }
 
     /**
@@ -1150,6 +1208,12 @@ class WP_Field
      */
     private function render_field(): void
     {
+        if (! is_array($this->field)) {
+            echo esc_html((string) $this->field);
+
+            return;
+        }
+
         $type = $this->field['type'] ?? 'text';
 
         if (! isset(self::$field_types[$type])) {
@@ -1179,8 +1243,8 @@ class WP_Field
         $this->render_label($field);
 
         $values = (array) $this->get_field_value($field);
-        $min = absint($field['min'] ?? 0);
-        $max = absint($field['max'] ?? 0);
+        $min = function_exists('absint') ? absint($field['min'] ?? 0) : (int) ($field['min'] ?? 0);
+        $max = function_exists('absint') ? absint($field['max'] ?? 0) : (int) ($field['max'] ?? 0);
 
         echo '<div class="wp-field-repeater" data-field-id="'.esc_attr($field['id']).'" data-min="'.$min.'" data-max="'.$max.'">';
 
@@ -1199,7 +1263,7 @@ class WP_Field
         printf(
             '<button type="button" class="button wp-field-repeater-add" data-field-id="%s">%s</button>',
             esc_attr($field['id']),
-            esc_html($field['add_text'] ?? __('Add Item', 'wp-field')),
+            esc_html($field['add_text'] ?? (function_exists('__') ? __('Add Item', 'wp-field') : 'Add Item')),
         );
 
         $this->render_description($field);
@@ -1232,7 +1296,7 @@ class WP_Field
 
         printf(
             '<button type="button" class="button wp-field-repeater-remove">%s</button>',
-            esc_html(__('Remove', 'wp-field')),
+            esc_html(function_exists('__') ? __('Remove', 'wp-field') : 'Remove'),
         );
 
         echo '</div>';
@@ -1318,7 +1382,7 @@ class WP_Field
         // Кнопка уменьшения
         printf(
             '<button type="button" class="wp-field-spinner-btn wp-field-spinner-down" data-step="%s">◄</button>',
-            esc_attr($step),
+            esc_attr((string) $step),
         );
 
         // Обёртка для input + unit
@@ -1327,10 +1391,10 @@ class WP_Field
         printf(
             '<input type="number" name="%s" value="%s" min="%s" max="%s" step="%s" %s %s />',
             esc_attr($field['name'] ?? $field['id']),
-            esc_attr($value),
-            esc_attr($min),
-            esc_attr($max),
-            esc_attr($step),
+            esc_attr((string) $value),
+            esc_attr((string) $min),
+            esc_attr((string) $max),
+            esc_attr((string) $step),
             $this->get_field_attributes($field),
             $this->get_readonly_disabled($field),
         );
@@ -1345,7 +1409,7 @@ class WP_Field
         // Кнопка увеличения
         printf(
             '<button type="button" class="wp-field-spinner-btn wp-field-spinner-up" data-step="%s">►</button>',
-            esc_attr($step),
+            esc_attr((string) $step),
         );
 
         echo '</div>';
@@ -1426,13 +1490,13 @@ class WP_Field
                 %s
             </div>',
             esc_attr($field['name'] ?? $field['id']),
-            esc_attr($value),
-            esc_attr($min),
-            esc_attr($max),
-            esc_attr($step),
+            esc_attr((string) $value),
+            esc_attr((string) $min),
+            esc_attr((string) $max),
+            esc_attr((string) $step),
             $this->get_field_attributes($field),
             $this->get_readonly_disabled($field),
-            $show_value ? '<span class="wp-field-slider-value">'.esc_html($value).'</span>' : '',
+            $show_value ? '<span class="wp-field-slider-value">'.esc_html((string) $value).'</span>' : '',
         );
 
         $this->render_description($field);
@@ -1445,13 +1509,14 @@ class WP_Field
     {
         $tag = $field['tag'] ?? 'h3';
         $class = $field['class'] ?? 'wp-field-heading';
+        $escaped_tag = function_exists('tag_escape') ? tag_escape($tag) : htmlspecialchars($tag, ENT_QUOTES);
 
         printf(
             '<%s class="%s">%s</%s>',
-            tag_escape($tag),
+            $escaped_tag,
             esc_attr($class),
             esc_html($field['label'] ?? ''),
-            tag_escape($tag),
+            $escaped_tag,
         );
     }
 
@@ -1462,13 +1527,14 @@ class WP_Field
     {
         $tag = $field['tag'] ?? 'h4';
         $class = $field['class'] ?? 'wp-field-subheading';
+        $escaped_tag = function_exists('tag_escape') ? tag_escape($tag) : htmlspecialchars($tag, ENT_QUOTES);
 
         printf(
             '<%s class="%s">%s</%s>',
-            tag_escape($tag),
+            $escaped_tag,
             esc_attr($class),
             esc_html($field['label'] ?? ''),
-            tag_escape($tag),
+            $escaped_tag,
         );
     }
 
@@ -1483,7 +1549,7 @@ class WP_Field
         printf(
             '<div class="%s">%s</div>',
             $class,
-            wp_kses_post($field['label'] ?? ''),
+            function_exists('wp_kses_post') ? wp_kses_post($field['label'] ?? '') : ($field['label'] ?? ''),
         );
     }
 
@@ -1492,7 +1558,7 @@ class WP_Field
      */
     private function render_content(array $field): void
     {
-        echo wp_kses_post($field['label'] ?? '');
+        echo function_exists('wp_kses_post') ? wp_kses_post($field['label'] ?? '') : ($field['label'] ?? '');
     }
 
     /**
@@ -1518,7 +1584,9 @@ class WP_Field
         // Рендер вложенных полей если они есть
         if (! empty($field['fields']) && is_array($field['fields'])) {
             foreach ($field['fields'] as $nested_field) {
-                WP_Field::make($nested_field, true);
+                if (is_array($nested_field)) {
+                    WP_Field::make($nested_field, true);
+                }
             }
         }
 
@@ -1581,7 +1649,7 @@ class WP_Field
             );
 
             if ($content) {
-                echo wp_kses_post($content);
+                echo function_exists('wp_kses_post') ? wp_kses_post($content) : $content;
             }
 
             if (! empty($fields)) {
@@ -1657,7 +1725,7 @@ class WP_Field
             );
 
             if ($content) {
-                echo wp_kses_post($content);
+                echo function_exists('wp_kses_post') ? wp_kses_post($content) : $content;
             }
 
             if (! empty($fields)) {
@@ -2296,7 +2364,7 @@ class WP_Field
             esc_attr($name),
             esc_attr($mode),
             esc_attr($height),
-            esc_textarea($value),
+            function_exists('esc_textarea') ? esc_textarea($value) : htmlspecialchars($value, ENT_QUOTES),
         );
 
         $this->render_description($field);
@@ -2325,14 +2393,14 @@ class WP_Field
         if ($value) {
             printf('<span class="%s %s"></span> %s', esc_attr($library), esc_attr($value), esc_html($value));
         } else {
-            echo esc_html__('Select Icon', 'wp-field');
+            echo function_exists('esc_html__') ? esc_html__('Select Icon', 'wp-field') : 'Select Icon';
         }
         echo '</button>';
 
         // Modal с иконками
         echo '<div class="wp-field-icon-modal" style="display:none;">';
         echo '<div class="wp-field-icon-modal-header">';
-        echo '<input type="text" class="wp-field-icon-search" placeholder="'.esc_attr__('Search icons...', 'wp-field').'">';
+        echo '<input type="text" class="wp-field-icon-search" placeholder="'.(function_exists('esc_attr__') ? esc_attr__('Search icons...', 'wp-field') : 'Search icons...').'">';
         echo '<button type="button" class="button wp-field-icon-close">×</button>';
         echo '</div>';
         echo '<div class="wp-field-icon-grid">';
@@ -2405,13 +2473,17 @@ class WP_Field
         }
 
         // Подключаем Google Maps API
-        wp_enqueue_script(
-            'google-maps-api',
-            'https://maps.googleapis.com/maps/api/js?key='.urlencode($api_key),
-            [],
-            null,
-            true,
-        );
+        if (function_exists('wp_enqueue_script')) {
+            wp_enqueue_script(
+                'google-maps-api',
+                'https://maps.googleapis.com/maps/api/js?key='.urlencode($api_key),
+                [],
+                null,
+                true,
+            );
+        } else {
+            echo '<script src="https://maps.googleapis.com/maps/api/js?key='.urlencode($api_key).'"></script>';
+        }
 
         echo '<div class="wp-field-map-wrapper">';
 
@@ -2429,7 +2501,7 @@ class WP_Field
 
         printf(
             '<div class="wp-field-map" data-zoom="%d" data-center-lat="%s" data-center-lng="%s" style="height:400px;width:100%%;"></div>',
-            absint($field['zoom'] ?? 12),
+            function_exists('absint') ? absint($field['zoom'] ?? 12) : (int) ($field['zoom'] ?? 12),
             esc_attr($field['center']['lat'] ?? '55.7558'),
             esc_attr($field['center']['lng'] ?? '37.6173'),
         );
@@ -2700,10 +2772,10 @@ class WP_Field
         echo '<h4>'.esc_html__('Export Settings', 'wp-field').'</h4>';
 
         if (! empty($export_data)) {
-            $json_data = wp_json_encode($export_data, JSON_PRETTY_PRINT);
+            $json_data = function_exists('wp_json_encode') ? wp_json_encode($export_data, JSON_PRETTY_PRINT) : json_encode($export_data, JSON_PRETTY_PRINT);
             printf(
                 '<textarea readonly class="wp-field-backup-export" rows="10" style="width:100%%;">%s</textarea>',
-                esc_textarea($json_data),
+                function_exists('esc_textarea') ? esc_textarea($json_data) : htmlspecialchars($json_data, ENT_QUOTES),
             );
             echo '<button type="button" class="button wp-field-backup-copy">'.esc_html__('Copy to Clipboard', 'wp-field').'</button>';
             echo '<button type="button" class="button wp-field-backup-download">'.esc_html__('Download JSON', 'wp-field').'</button>';
@@ -2730,4 +2802,11 @@ class WP_Field
 
         $this->render_description($field);
     }
+}
+
+// Loading the examples pages strictly within the WordPress context.
+if (is_admin() && defined('WP_DEBUG') && WP_DEBUG) {
+    require_once __DIR__.'/example.php';
+    // Load v3.0 demo page
+    require_once __DIR__.'/examples/v3-demo.php';
 }

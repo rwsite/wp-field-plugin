@@ -1,8 +1,7 @@
 {
   "name": "rwsite/wp-field",
-  "description": "Modern Laravel-style field generator for WordPress with 50+ field types, fluent API, React UI, repeater/flexible content fields, conditional logic, and complete storage strategies. 100% backward compatible with v2.x",
+  "description": "Modern Laravel-style field generator for WordPress with 50+ field types, fluent API, React UI, repeater/flexible content fields, conditional logic, and complete storage strategies.",
   "type": "wordpress-plugin",
-  "version": "3.0.0",
   "license": "GPL-2.0-or-later",
   "keywords": [
     "wordpress",
@@ -30,7 +29,7 @@
     "source": "https://github.com/rwsite/wp-field-plugin"
   },
   "require": {
-    "php": ">=8.0"
+    "php": ">=8.3"
   },
   "require-dev": {
     "pestphp/pest": "^4.1",
@@ -54,7 +53,6 @@
     "test:unit": "./vendor/bin/pest --configuration phpunit.xml --filter=Unit",
     "test:feature": "./vendor/bin/pest --configuration phpunit.xml --filter=Feature",
     "test:coverage": "./vendor/bin/pest --coverage-html coverage/ --coverage-clover coverage/clover.xml --coverage-text",
-    "test:old": "php tests/test-wp-field-v2.4.php",
     "analyse": "./vendor/bin/phpstan analyse --memory-limit=1G",
     "lint": "./vendor/bin/pint",
     "lint:check": "./vendor/bin/pint --test -v"
@@ -64,9 +62,8 @@
     "test:unit": "Запуск Unit тестов",
     "test:feature": "Запуск Feature тестов",
     "test:coverage": "Запуск тестов с отчётом покрытия",
-    "test:old": "Запуск старых тестов напрямую",
-    "pint": "Форматирование кода через Pint",
-    "pint:check": "Проверка форматирования кода"
+    "lint": "Форматирование кода через Pint",
+    "lint:check": "Проверка форматирования кода"
   },
   "config": {
     "allow-plugins": {

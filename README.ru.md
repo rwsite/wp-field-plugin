@@ -1,20 +1,18 @@
 <p align="center">
-  <img src="placeholder.svg" alt="WP_Field Logo" width="150" height="150">
+  <img src="wp-field.png" alt="WP_Field Screenshot" width="800">
 </p>
 
 <h1 align="center">WP_Field</h1>
 
 <p align="center">
-  <strong>Современный генератор полей для WordPress в стиле Laravel</strong><br>
-  Fluent API, 50+ типов полей, React UI, Repeater/Flexible Content,<br>
-  полные стратегии хранения и 100% обратная совместимость.
+  <strong>Библиотека HTML-полей для WordPress</strong><br>
+  Основа для создания собственных фреймворков, систем настроек и admin UI.<br>
+  Fluent API, 48 уникальных типов полей (+4 алиаса), React/Vanilla UI и современная архитектура v3.
 </p>
 
 <p align="center">
   <a href="https://packagist.org/packages/rwsite/wp-field"><img src="https://img.shields.io/packagist/v/rwsite/wp-field.svg?style=flat-square" alt="Latest Version"></a>
-  <img src="https://img.shields.io/badge/PHP-8.0+-blue.svg?style=flat-square" alt="PHP Version">
-  <a href="https://github.com/rwsite/wp-field"><img src="https://img.shields.io/github/actions/workflow/status/rwsite/wp-field/tests.yml?branch=main&style=flat-square" alt="Build Status"></a>
-  <a href="https://codecov.io/gh/rwsite/wp-field"><img src="https://img.shields.io/codecov/c/github/rwsite/wp-field?style=flat-square" alt="Code Coverage"></a>
+  <img src="https://img.shields.io/badge/PHP-8.3+-blue.svg?style=flat-square" alt="PHP Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg?style=flat-square" alt="License"></a>
 </p>
 
@@ -37,21 +35,21 @@
 - 🔁 **Repeater поля** — Бесконечная вложенность с ограничениями min/max
 - 🎨 **Flexible Content** — Конструктор блоков в стиле ACF с множественными типами
 - ⚛️ **React UI** — Современные React компоненты с fallback на Vanilla JS
-- � **Legacy адаптер** — 100% обратная совместимость с API v2.x
 - 🏗️ **SOLID архитектура** — Интерфейсы, трейты, внедрение зависимостей
 - 📦 **Стратегии хранения** — PostMeta, TermMeta, UserMeta, Options, CustomTable
-- � **Типобезопасность** — PHPStan Level 9, строгие типы, полный PHPDoc
+- 🛡️ **Типобезопасность** — PHPStan Level 9, строгие типы, полный PHPDoc
 
 ### Основные возможности
-- 🚀 **50+ типов полей** — Text, select, repeater, flexible content и другие
-- � **Условная логика** — 14 операторов с отношениями AND/OR
+- 🚀 **48 уникальных типов полей** — Text, select, repeater, flexible content и другие
+- ♻️ **4 алиаса совместимости** — `date_time`, `datetime-local`, `image_picker`, `imagepicker`
+- 🔗 **Условная логика** — 14 операторов с отношениями AND/OR
 - 🧪 **Полное покрытие тестами** — Pest/PHPUnit тесты со 100% успехом
 - 🎨 **Компоненты WP** — Нативная интеграция с WordPress UI
 - 🌍 **i18n Ready** — Поддержка мультиязычности
 
 ## Требования
 
-- PHP 8.0+
+- PHP 8.3+
 - WordPress 6.0+
 - Composer (для установки)
 
@@ -145,26 +143,7 @@ $flexible = Field::flexibleContent('page_sections')
     ->buttonLabel('Добавить секцию');
 ```
 
-### Legacy API (v2.x - всё ещё поддерживается)
-
-```php
-use WpField\Legacy\LegacyAdapter;
-
-// Старый API на основе массивов
-$field = LegacyAdapter::make([
-    'id' => 'shop_name',
-    'type' => 'text',
-    'label' => 'Название магазина',
-    'required' => true,
-]);
-
-echo $field->render();
-
-// Comment meta
-WP_Field::make($field_config, false, 'comment', $comment_id);
-```
-
-## Типы полей (52)
+## Типы полей (48 уникальных + 4 алиаса)
 
 ### Базовые (9)
 - `text` — Текстовый ввод
@@ -199,7 +178,7 @@ WP_Field::make($field_config, false, 'comment', $comment_id);
 - `group` — Вложенные поля
 - `repeater` — Повторяющиеся элементы
 
-### Простые v2.1 (9)
+### Простые поля (9)
 - `switcher` — Переключатель вкл/выкл
 - `spinner` — Счетчик чисел
 - `button_set` — Выбор кнопками
@@ -210,7 +189,7 @@ WP_Field::make($field_config, false, 'comment', $comment_id);
 - `content` — Произвольный HTML контент
 - `fieldset` — Группировка полей
 
-### Средней сложности v2.2 (10)
+### Поля средней сложности (10)
 - `accordion` — Сворачиваемые секции
 - `tabbed` — Вкладки
 - `typography` — Настройки типографии
@@ -222,7 +201,7 @@ WP_Field::make($field_config, false, 'comment', $comment_id);
 - `color_group` — Группа цветов
 - `image_select` — Выбор изображений
 
-### Высокой сложности v2.3 (8)
+### Поля высокой сложности (8)
 - `code_editor` — Редактор кода с подсветкой синтаксиса
 - `icon` — Выбор иконки из библиотеки
 - `map` — Карта Google Maps с выбором координат
@@ -318,7 +297,7 @@ WP_Field::make([
 ]);
 ```
 
-### Code Editor (v2.3)
+### Code Editor
 
 ```php
 WP_Field::make([
@@ -330,7 +309,7 @@ WP_Field::make([
 ]);
 ```
 
-### Icon Picker (v2.3)
+### Icon Picker
 
 ```php
 WP_Field::make([
@@ -341,7 +320,7 @@ WP_Field::make([
 ]);
 ```
 
-### Map (v2.3)
+### Map
 
 ```php
 WP_Field::make([
@@ -354,7 +333,7 @@ WP_Field::make([
 ]);
 ```
 
-### Sortable (v2.3)
+### Sortable
 
 ```php
 WP_Field::make([
@@ -370,7 +349,7 @@ WP_Field::make([
 ]);
 ```
 
-### Palette (v2.3)
+### Palette
 
 ```php
 WP_Field::make([
@@ -385,7 +364,7 @@ WP_Field::make([
 ]);
 ```
 
-### Link (v2.3)
+### Link
 
 ```php
 WP_Field::make([
@@ -399,7 +378,7 @@ $link = get_post_meta($post_id, 'cta_button', true);
 // ['url' => '...', 'text' => '...', 'target' => '_blank']
 ```
 
-### Accordion (v2.2)
+### Accordion
 
 ```php
 WP_Field::make([
@@ -424,7 +403,7 @@ WP_Field::make([
 ]);
 ```
 
-### Typography (v2.2)
+### Typography
 
 ```php
 WP_Field::make([
@@ -458,17 +437,23 @@ WP_Field::make([
 
 ## Интерактивная демонстрация
 
-**Посмотрите все 52 типа полей в действии:**
+**Посмотрите все 48 типов полей в действии:**
 
-👉 **Инструменты → WP_Field Examples**  
-или  
+👉 **Инструменты → WP_Field Examples** (демо классического API)  
 👉 `/wp-admin/tools.php?page=wp-field-examples`
 
-Страница включает:
-- ✅ Все типы полей с живыми примерами
+👉 **Инструменты → WP_Field v3.0 Demo** (Modern Fluent API)  
+👉 `/wp-admin/tools.php?page=wp-field-v3-demo`
+
+Демо-страницы включают:
+- ✅ Все 48 типов полей с живыми примерами
 - ✅ Код для каждого поля
+- ✅ Демонстрации Fluent API (v3.0)
+- ✅ Примеры Repeater и Flexible Content
+- ✅ Условную логику с 14 операторами
+- ✅ Переключение React/Vanilla UI
 - ✅ Демонстрацию системы зависимостей
-- ✅ Возможность сохранения и тестирования
+- ✅ Возможность сохранить и протестировать
 
 ## Расширяемость
 
@@ -512,15 +497,15 @@ add_filter('wp_field_get_value', function($value, $storage_type, $key, $id, $fie
 - **Строк PHP:** 2705 (WP_Field.php)
 - **Строк JS:** 1222 (wp-field.js)
 - **Строк CSS:** 1839 (wp-field.css)
-- **Типов полей:** 52+
+- **Типов полей:** 48
 - **Операторов зависимостей:** 12
 - **Типов хранилищ:** 5
 - **Внешних зависимостей:** 0
 
 ## Совместимость
 
-- **WordPress:** 4.6+
-- **PHP:** 7.4+
+- **WordPress:** 6.0+
+- **PHP:** 8.3+
 - **Зависимости:** jQuery, jQuery UI Sortable, встроенные компоненты WordPress
 - **Браузеры:** Chrome, Firefox, Safari, Edge (последние 2 версии)
 

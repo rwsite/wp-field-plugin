@@ -1,18 +1,18 @@
 <p align="center">
-  <img src="placeholder.svg" alt="WP_Field Logo" width="150" height="150">
+  <img src="wp-field.png" alt="WP_Field Screenshot" width="800">
 </p>
 
 <h1 align="center">WP_Field</h1>
 
 <p align="center">
-  <strong>Modern Laravel-Style Field Generator for WordPress</strong><br>
-  Fluent API, 50+ field types, React UI, Repeater/Flexible Content fields,<br>
-  complete storage strategies, and 100% backward compatibility.
+  <strong>HTML Fields Library for WordPress</strong><br>
+  A foundation for building custom frameworks, settings systems, and admin UIs.<br>
+  Fluent API, 48 unique field types (+4 aliases), React/Vanilla UI, and modern v3 architecture.
 </p>
 
 <p align="center">
   <a href="https://packagist.org/packages/rwsite/wp-field"><img src="https://img.shields.io/packagist/v/rwsite/wp-field.svg?style=flat-square" alt="Latest Version"></a>
-  <img src="https://img.shields.io/badge/PHP-8.0+-blue.svg?style=flat-square" alt="PHP Version">
+  <img src="https://img.shields.io/badge/PHP-8.3+-blue.svg?style=flat-square" alt="PHP Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg?style=flat-square" alt="License"></a>
 </p>
 
@@ -35,13 +35,13 @@
 - 🔁 **Repeater Fields** — Infinite nesting support with min/max constraints
 - 🎨 **Flexible Content** — ACF-style layout builder with multiple block types
 - ⚛️ **React UI** — Modern React components with Vanilla JS fallback
-- 🔄 **Legacy Adapter** — 100% backward compatibility with v2.x API
 - 🏗️ **SOLID Architecture** — Interfaces, traits, dependency injection
 - 📦 **Storage Strategies** — PostMeta, TermMeta, UserMeta, Options, CustomTable
-- � **Type Safety** — PHPStan Level 9, strict types, full PHPDoc
+- 🛡️ **Type Safety** — PHPStan Level 9, strict types, full PHPDoc
 
 ### Core Features
-- � **50+ Field Types** — Text, select, repeater, flexible content, and more
+- 🚀 **48 Unique Field Types** — Text, select, repeater, flexible content, and more
+- ♻️ **4 Compatibility Aliases** — `date_time`, `datetime-local`, `image_picker`, `imagepicker`
 - 🔗 **Conditional Logic** — 14 operators with AND/OR relations
 - 🧪 **Full Test Coverage** — Pest/PHPUnit tests with 100% pass rate
 - 🎨 **WP Components** — Native WordPress UI integration
@@ -49,7 +49,7 @@
 
 ## Requirements
 
-- PHP 8.0+
+- PHP 8.3+
 - WordPress 6.0+
 - Composer (for installation)
 
@@ -143,23 +143,7 @@ $flexible = Field::flexibleContent('page_sections')
     ->buttonLabel('Add Section');
 ```
 
-### Legacy API (v2.x - Still Supported)
-
-```php
-use WpField\Legacy\LegacyAdapter;
-
-// Old array-based API
-$field = LegacyAdapter::make([
-    'id' => 'shop_name',
-    'type' => 'text',
-    'label' => 'Shop Name',
-    'required' => true,
-]);
-
-echo $field->render();
-```
-
-## Field Types (52)
+## Field Types (48 unique + 4 aliases)
 
 ### Basic (9)
 - `text` — Text input
@@ -194,7 +178,7 @@ echo $field->render();
 - `group` — Nested fields
 - `repeater` — Repeating elements
 
-### Simple v2.1 (9)
+### Simple Fields (9)
 - `switcher` — On/off switcher
 - `spinner` — Number spinner
 - `button_set` — Button selection
@@ -205,7 +189,7 @@ echo $field->render();
 - `content` — Custom HTML content
 - `fieldset` — Field grouping
 
-### Medium Complexity v2.2 (10)
+### Medium Complexity Fields (10)
 - `accordion` — Collapsible sections
 - `tabbed` — Tabs
 - `typography` — Typography settings
@@ -217,7 +201,7 @@ echo $field->render();
 - `color_group` — Color group
 - `image_select` — Image selection
 
-### High Complexity v2.3 (8)
+### High Complexity Fields (8)
 - `code_editor` — Code editor with syntax highlighting
 - `icon` — Icon picker from library
 - `map` — Google Maps location
@@ -313,7 +297,7 @@ WP_Field::make([
 ]);
 ```
 
-### Code Editor (v2.3)
+### Code Editor
 
 ```php
 WP_Field::make([
@@ -325,7 +309,7 @@ WP_Field::make([
 ]);
 ```
 
-### Icon Picker (v2.3)
+### Icon Picker
 
 ```php
 WP_Field::make([
@@ -336,7 +320,7 @@ WP_Field::make([
 ]);
 ```
 
-### Map (v2.3)
+### Map
 
 ```php
 WP_Field::make([
@@ -349,7 +333,7 @@ WP_Field::make([
 ]);
 ```
 
-### Sortable (v2.3)
+### Sortable
 
 ```php
 WP_Field::make([
@@ -365,7 +349,7 @@ WP_Field::make([
 ]);
 ```
 
-### Palette (v2.3)
+### Palette
 
 ```php
 WP_Field::make([
@@ -380,7 +364,7 @@ WP_Field::make([
 ]);
 ```
 
-### Link (v2.3)
+### Link
 
 ```php
 WP_Field::make([
@@ -394,7 +378,7 @@ $link = get_post_meta($post_id, 'cta_button', true);
 // ['url' => '...', 'text' => '...', 'target' => '_blank']
 ```
 
-### Accordion (v2.2)
+### Accordion
 
 ```php
 WP_Field::make([
@@ -419,7 +403,7 @@ WP_Field::make([
 ]);
 ```
 
-### Typography (v2.2)
+### Typography
 
 ```php
 WP_Field::make([
@@ -453,15 +437,21 @@ WP_Field::make([
 
 ## Interactive Demo
 
-**See all 52 field types in action:**
+**See all 48 field types in action:**
 
-👉 **Tools → WP_Field Examples**  
-or  
+👉 **Tools → WP_Field Examples** (Classic API demo)  
 👉 `/wp-admin/tools.php?page=wp-field-examples`
 
-The page includes:
-- ✅ All field types with live examples
+👉 **Tools → WP_Field v3.0 Demo** (Modern Fluent API)  
+👉 `/wp-admin/tools.php?page=wp-field-v3-demo`
+
+The demo pages include:
+- ✅ All 48 field types with live examples
 - ✅ Code for each field
+- ✅ Fluent API demonstrations (v3.0)
+- ✅ Repeater and Flexible Content examples
+- ✅ Conditional Logic with 14 operators
+- ✅ React/Vanilla UI mode switching
 - ✅ Dependency system demonstration
 - ✅ Ability to save and test
 
@@ -507,15 +497,15 @@ See **[CHANGELOG.md](CHANGELOG.md)** for detailed version history.
 - **PHP Lines:** 2705 (WP_Field.php)
 - **JS Lines:** 1222 (wp-field.js)
 - **CSS Lines:** 1839 (wp-field.css)
-- **Field Types:** 52+
+- **Field Types:** 48
 - **Dependency Operators:** 12
 - **Storage Types:** 5
 - **External Dependencies:** 0
 
 ## Compatibility
 
-- **WordPress:** 4.6+
-- **PHP:** 7.4+
+- **WordPress:** 6.0+
+- **PHP:** 8.3+
 - **Dependencies:** jQuery, jQuery UI Sortable, WordPress built-in components
 - **Browsers:** Chrome, Firefox, Safari, Edge (latest 2 versions)
 
