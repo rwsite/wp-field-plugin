@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Plugin Name: WP_Field — Universal HTML Field Generator
+ * Plugin Name: WP_Field — Modern Laravel-Style Field Generator
  * Plugin URI:  https://github.com/rwsite/wp-field-plugin
- * Description: Universal HTML field generator for WordPress with 52 field types, dependency system, all storage types, and built-in WP components. Minimalist, extensible library for creating fields in WordPress.
- * Version:     2.5.1
- * Requires at least: 5.7
- * Tested up to: 6.7
+ * Description: Modern Laravel-style field generator for WordPress with 50+ field types, fluent API, React UI, repeater/flexible content fields, conditional logic, and complete storage strategies. 100% backward compatible with v2.x.
+ * Version:     3.0.0
+ * Requires at least: 6.0
+ * Tested up to: 7.0
  * Requires PHP: 8.0
  * Author:      Aleksei Tikhomirov
  * Author URI:  https://rwsite.ru
@@ -15,7 +15,8 @@
  * Text Domain: wp-field
  * Domain Path: /lang/
  *
- * How to use: WP_Field::make(['id' => 'new_id', 'label' => 'New input']);
+ * How to use (v3.0): Field::text('email')->label('Email')->required()->render();
+ * Legacy (v2.x): WP_Field::make(['id' => 'new_id', 'label' => 'New input']);
  */
 
 declare(strict_types=1);
@@ -23,6 +24,14 @@ declare(strict_types=1);
 if (! defined('ABSPATH') || class_exists('WP_Field')) {
     return;
 }
+
+// Composer autoloader
+if (file_exists(__DIR__.'/vendor/autoload.php')) {
+    require_once __DIR__.'/vendor/autoload.php';
+}
+
+// Examples page
+require_once __DIR__.'/example.php';
 
 #[AllowDynamicProperties]
 class WP_Field

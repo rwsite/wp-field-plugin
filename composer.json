@@ -1,6 +1,6 @@
 {
   "name": "rwsite/wp-field",
-  "description": "Modern Laravel-style field generator for WordPress with 50+ field types, fluent API, React UI, repeater/flexible content fields, and complete storage strategies",
+  "description": "Modern Laravel-style field generator for WordPress with 50+ field types, fluent API, React UI, repeater/flexible content fields, conditional logic, and complete storage strategies. 100% backward compatible with v2.x",
   "type": "wordpress-plugin",
   "version": "3.0.0",
   "license": "GPL-2.0-or-later",
