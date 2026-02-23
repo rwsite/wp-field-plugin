@@ -2,6 +2,35 @@
 
 Все важные изменения в проекте WP_Field документируются в этом файле.
 
+## [3.0.0] - 2025-02-24
+
+### Добавлено
+- **Laravel-style Fluent API** — Цепочка методов: `Field::text('name')->label('Имя')->required()`
+- **Repeater Field** — Поле с бесконечной вложенностью, min/max ограничениями, 3 режима отображения (table, block, row)
+- **Flexible Content Field** — Конструктор блоков в стиле ACF с множественными типами layouts
+- **Conditional Logic Backend** — 14 операторов (`==`, `!=`, `>`, `<`, `contains`, `in`, `empty` и др.) с AND/OR логикой
+- **React UI Components** — Современные React компоненты для Repeater и Flexible Content с автоматическим fallback на Vanilla JS
+- **UI Manager** — Переключение между React и Vanilla JS режимами через `UIManager::setMode()`
+- **Legacy Adapter** — 100% обратная совместимость с v2.x array-based API через `LegacyAdapter::make()`
+- **SOLID Architecture** — Интерфейсы, трейты, абстрактные классы, dependency injection
+- **Storage Strategies** — PostMetaStorage, TermMetaStorage, UserMetaStorage, OptionStorage, CustomTableStorage
+- **GitHub Actions CI/CD** — Автоматические тесты (Pest), статический анализ (PHPStan Level 9), проверка стиля (Pint), сборка React
+- **Vite Build System** — Современная сборка React компонентов с hot reload
+- **Composer Package** — Готов к публикации на Packagist с полными метаданными
+
+### Изменено
+- **Архитектура** — Переход на PSR-4 autoloading с namespace `WpField\`
+- **Type Safety** — Все файлы используют `declare(strict_types=1)`, полная типизация параметров и возвращаемых значений
+- **Code Style** — Унификация через Laravel Pint, 100% соответствие PSR-12
+- **Документация** — Полностью обновлены README.md и README.ru.md с примерами v3.0 API
+- **Версия** — Обновлена до 3.0.0 в composer.json, package.json
+
+### Технические детали
+- **PHPStan Level 9** — Максимальная строгость статического анализа
+- **Pest Tests** — Все существующие тесты проходят успешно
+- **React 18** — Использование современных хуков и функциональных компонентов
+- **Infinite Nesting** — Repeater и Flexible Content поддерживают неограниченную вложенность
+
 ## [2.5.0] - 2025-11-23
 
 ### Добавлено
