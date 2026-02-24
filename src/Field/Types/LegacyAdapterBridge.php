@@ -25,7 +25,12 @@ trait LegacyAdapterBridge
 
         foreach ($this->conditions as $conditionGroup) {
             foreach ($conditionGroup as $condition) {
-                if (isset($condition['field'], $condition['operator'], $condition['value'])) {
+                if (
+                    is_array($condition) &&
+                    isset($condition['field'], $condition['operator'], $condition['value']) &&
+                    is_string($condition['field']) &&
+                    is_string($condition['operator'])
+                ) {
                     $wrapper->when($condition['field'], $condition['operator'], $condition['value']);
                 }
             }
