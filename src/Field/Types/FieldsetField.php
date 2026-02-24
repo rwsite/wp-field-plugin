@@ -15,6 +15,9 @@ class FieldsetField extends AbstractField
         parent::__construct($name, 'fieldset');
     }
 
+    /**
+     * @param array<int|string, mixed> $fields
+     */
     public function fields(array $fields): static
     {
         return $this->attribute('fields', $fields);

@@ -8,6 +8,9 @@ use WpField\Field\AbstractField;
 
 class LegacyWrapperField extends AbstractField
 {
+    /**
+     * @var array<string, mixed>
+     */
     private array $legacyConfig = [];
 
     public function __construct(string $name, string $legacyType)
@@ -73,7 +76,12 @@ class LegacyWrapperField extends AbstractField
             foreach ($this->conditions as $conditionGroup) {
                 // Legacy API uses simpler dependency arrays
                 foreach ($conditionGroup as $condition) {
-                    if (isset($condition['field'], $condition['operator'], $condition['value'])) {
+                    if (
+                        is_array($condition) &&
+                        isset($condition['field'], $condition['operator'], $condition['value']) &&
+                        is_string($condition['field']) &&
+                        is_string($condition['operator'])
+                    ) {
                         $config['dependency'][] = [
                             $condition['field'],
                             $condition['operator'],
@@ -97,7 +105,7 @@ class LegacyWrapperField extends AbstractField
 
         if ($this->type === 'fieldset') {
             $fields = $this->getAttribute('fields');
-            if ($fields) {
+            if (is_array($fields)) {
                 // Convert FieldInterface objects to legacy arrays if needed
                 $config['fields'] = array_map(function ($field) {
                     if ($field instanceof \WpField\Field\FieldInterface) {
