@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="placeholder.svg" alt="WP_Field Screenshot" width="800">
+  <img src="logo.svg" alt="WP_Field Logo" width="800">
 </p>
 
 <h1 align="center">WP_Field</h1>
@@ -217,200 +217,144 @@ $flexible = Field::flexibleContent('page_sections')
 
 ```php
 // Show field only if another field has specific value
-WP_Field::make([
-    'id'    => 'courier_address',
-    'type'  => 'text',
-    'label' => 'Delivery Address',
-    'dependency' => [
-        ['delivery_type', '==', 'courier'],
-    ],
-]);
+Field::text('courier_address')
+    ->label('Delivery Address')
+    ->when('delivery_type', '==', 'courier');
 
 // Multiple conditions (AND)
-WP_Field::make([
-    'id'    => 'special_field',
-    'type'  => 'text',
-    'label' => 'Special Field',
-    'dependency' => [
-        ['field1', '==', 'value1'],
-        ['field2', '!=', 'value2'],
-        'relation' => 'AND',
-    ],
-]);
+Field::text('special_field')
+    ->label('Special Field')
+    ->when('field1', '==', 'value1')
+    ->when('field2', '!=', 'value2');
 
 // Multiple conditions (OR)
-WP_Field::make([
-    'id'    => 'notification',
-    'type'  => 'text',
-    'label' => 'Notification',
-    'dependency' => [
-        ['type', '==', 'sms'],
-        ['type', '==', 'email'],
-        'relation' => 'OR',
-    ],
-]);
+Field::text('notification')
+    ->label('Notification')
+    ->when('type', '==', 'sms')
+    ->orWhen('type', '==', 'email');
 ```
 
 ### Repeater
 
 ```php
-WP_Field::make([
-    'id'       => 'work_times',
-    'type'     => 'repeater',
-    'label'    => 'Work Times',
-    'min'      => 1,
-    'max'      => 7,
-    'add_text' => 'Add Day',
-    'fields'   => [
-        [
-            'id'      => 'day',
-            'type'    => 'select',
-            'label'   => 'Day',
-            'options' => ['mon' => 'Mon', 'tue' => 'Tue'],
-        ],
-        [
-            'id'    => 'from',
-            'type'  => 'time',
-            'label' => 'From',
-        ],
-        [
-            'id'    => 'to',
-            'type'  => 'time',
-            'label' => 'To',
-        ],
-    ],
-]);
+Field::repeater('work_times')
+    ->label('Work Times')
+    ->min(1)
+    ->max(7)
+    ->buttonLabel('Add Day')
+    ->fields([
+        Field::make('select', 'day')
+            ->label('Day')
+            ->options(['mon' => 'Mon', 'tue' => 'Tue']),
+        Field::make('time', 'from')
+            ->label('From'),
+        Field::make('time', 'to')
+            ->label('To'),
+    ]);
 ```
 
 ### Group
 
 ```php
-WP_Field::make([
-    'id'    => 'address',
-    'type'  => 'group',
-    'label' => 'Address',
-    'fields' => [
-        ['id' => 'city', 'type' => 'text', 'label' => 'City'],
-        ['id' => 'street', 'type' => 'text', 'label' => 'Street'],
-        ['id' => 'number', 'type' => 'text', 'label' => 'Number'],
-    ],
-]);
+Field::make('group', 'address')
+    ->label('Address')
+    ->fields([
+        Field::text('city')->label('City'),
+        Field::text('street')->label('Street'),
+        Field::text('number')->label('Number'),
+    ]);
 ```
 
 ### Code Editor
 
 ```php
-WP_Field::make([
-    'id'     => 'custom_css',
-    'type'   => 'code_editor',
-    'label'  => 'Custom CSS',
-    'mode'   => 'css', // css, javascript, php, html
-    'height' => '400px',
-]);
+Field::make('code_editor', 'custom_css')
+    ->label('Custom CSS')
+    ->mode('css') // css, javascript, php, html
+    ->height('400px');
 ```
 
 ### Icon Picker
 
 ```php
-WP_Field::make([
-    'id'      => 'menu_icon',
-    'type'    => 'icon',
-    'label'   => 'Menu Icon',
-    'library' => 'dashicons',
-]);
+Field::make('icon', 'menu_icon')
+    ->label('Menu Icon')
+    ->library('dashicons');
 ```
 
 ### Map
 
 ```php
-WP_Field::make([
-    'id'      => 'location',
-    'type'    => 'map',
-    'label'   => 'Location',
-    'api_key' => 'YOUR_GOOGLE_MAPS_API_KEY',
-    'zoom'    => 12,
-    'center'  => ['lat' => 55.7558, 'lng' => 37.6173],
-]);
+Field::make('map', 'location')
+    ->label('Location')
+    ->apiKey('YOUR_GOOGLE_MAPS_API_KEY')
+    ->zoom(12)
+    ->center(['lat' => 55.7558, 'lng' => 37.6173]);
 ```
 
 ### Sortable
 
 ```php
-WP_Field::make([
-    'id'      => 'menu_order',
-    'type'    => 'sortable',
-    'label'   => 'Menu Order',
-    'options' => [
+Field::make('sortable', 'menu_order')
+    ->label('Menu Order')
+    ->options([
         'home'     => 'Home',
         'about'    => 'About',
         'services' => 'Services',
         'contact'  => 'Contact',
-    ],
-]);
+    ]);
 ```
 
 ### Palette
 
 ```php
-WP_Field::make([
-    'id'       => 'color_scheme',
-    'type'     => 'palette',
-    'label'    => 'Color Scheme',
-    'palettes' => [
+Field::make('palette', 'color_scheme')
+    ->label('Color Scheme')
+    ->palettes([
         'blue'   => ['#0073aa', '#005a87', '#003d82'],
         'green'  => ['#28a745', '#218838', '#1e7e34'],
         'red'    => ['#dc3545', '#c82333', '#bd2130'],
-    ],
-]);
+    ]);
 ```
 
 ### Link
 
 ```php
-WP_Field::make([
-    'id'    => 'cta_button',
-    'type'  => 'link',
-    'label' => 'CTA Button',
-]);
+Field::make('link', 'cta_button')
+    ->label('CTA Button');
 
 // Get value:
-$link = get_post_meta($post_id, 'cta_button', true);
+// $link = get_post_meta($post_id, 'cta_button', true);
 // ['url' => '...', 'text' => '...', 'target' => '_blank']
 ```
 
 ### Accordion
 
 ```php
-WP_Field::make([
-    'id'       => 'settings_accordion',
-    'type'     => 'accordion',
-    'label'    => 'Settings',
-    'sections' => [
+Field::make('accordion', 'settings_accordion')
+    ->label('Settings')
+    ->sections([
         [
             'title'  => 'General',
             'open'   => true,
             'fields' => [
-                ['id' => 'title', 'type' => 'text', 'label' => 'Title'],
+                Field::text('title')->label('Title'),
             ],
         ],
         [
             'title'  => 'Advanced',
             'fields' => [
-                ['id' => 'desc', 'type' => 'textarea', 'label' => 'Description'],
+                Field::make('textarea', 'desc')->label('Description'),
             ],
         ],
-    ],
-]);
+    ]);
 ```
 
 ### Typography
 
 ```php
-WP_Field::make([
-    'id'    => 'heading_typography',
-    'type'  => 'typography',
-    'label' => 'Heading Typography',
-]);
+Field::make('typography', 'heading_typography')
+    ->label('Heading Typography');
 
 // Saved as:
 // [
