@@ -16,7 +16,7 @@ class FieldsetField extends AbstractField
     }
 
     /**
-     * @param array<int|string, mixed> $fields
+     * @param  array<int|string, mixed>  $fields
      */
     public function fields(array $fields): static
     {
