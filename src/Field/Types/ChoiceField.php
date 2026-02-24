@@ -9,7 +9,7 @@ use WpField\Field\AbstractField;
 abstract class ChoiceField extends AbstractField
 {
     /**
-     * @param array<string|int, mixed> $options
+     * @param  array<string|int, mixed>  $options
      */
     public function options(array $options): static
     {
@@ -22,6 +22,7 @@ abstract class ChoiceField extends AbstractField
     public function getOptions(): array
     {
         $options = $this->getAttribute('options', []);
+
         return is_array($options) ? $options : [];
     }
 }
