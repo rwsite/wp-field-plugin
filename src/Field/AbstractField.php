@@ -54,6 +54,7 @@ abstract class AbstractField implements FieldInterface
     public function toArray(): array
     {
         return array_merge([
+            'id' => $this->name,
             'name' => $this->name,
             'type' => $this->type,
             'required' => $this->isRequired(),

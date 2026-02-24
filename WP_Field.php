@@ -265,6 +265,14 @@ class WP_Field
 
         self::$assets_enqueued = true;
 
+        if (function_exists('did_action') && did_action('admin_enqueue_scripts') > 0) {
+            // Если конструктор вызван во время render метабокса, action уже прошел.
+            // В этом случае подключаем assets сразу.
+            $this->enqueue_assets();
+
+            return;
+        }
+
         if (function_exists('add_action')) {
             add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
         }
@@ -2803,6 +2811,45 @@ class WP_Field
         $this->render_description($field);
     }
 }
+
+// Фолбэк: гарантируем подключение стилей/скриптов для modern API,
+// когда WP_Field может вообще не инстанцироваться до render.
+add_action('admin_enqueue_scripts', static function (): void {
+    $base_url = plugin_dir_url(__FILE__);
+    $base_dir = plugin_dir_path(__FILE__);
+
+    $css_rel = 'assets/css/wp-field.css';
+    $js_rel = 'assets/js/wp-field.js';
+
+    $css_ver = file_exists($base_dir.$css_rel) ? (string) filemtime($base_dir.$css_rel) : '3.0.0';
+    $js_ver = file_exists($base_dir.$js_rel) ? (string) filemtime($base_dir.$js_rel) : '3.0.0';
+
+    wp_enqueue_script('jquery');
+    wp_enqueue_script('jquery-ui-datepicker');
+    wp_enqueue_script('jquery-ui-sortable');
+    wp_enqueue_style('wp-color-picker');
+    wp_enqueue_script('wp-color-picker');
+    wp_enqueue_media();
+
+    if (! wp_script_is('wp-field-main', 'enqueued')) {
+        wp_enqueue_script(
+            'wp-field-main',
+            $base_url.$js_rel,
+            ['jquery'],
+            $js_ver,
+            true,
+        );
+    }
+
+    if (! wp_style_is('wp-field-main', 'enqueued')) {
+        wp_enqueue_style(
+            'wp-field-main',
+            $base_url.$css_rel,
+            [],
+            $css_ver,
+        );
+    }
+});
 
 // Loading the examples pages strictly within the WordPress context.
 if (is_admin() && defined('WP_DEBUG') && WP_DEBUG) {

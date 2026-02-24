@@ -641,23 +641,86 @@
             // Add button
             $(document).on('click', '.wp-field-repeater-add', function (e) {
                 e.preventDefault();
-                const fieldId = $(this).data('field-id');
-                self.addRepeaterItem(fieldId);
+                self.addRepeaterItem($(this));
             });
 
             // Remove button
             $(document).on('click', '.wp-field-repeater-remove', function (e) {
                 e.preventDefault();
-                $(this).closest('.wp-field-repeater-item').remove();
+
+                const $button = $(this);
+                const $oopRow = $button.closest('.wp-field-repeater-row');
+
+                // OOP repeater variant
+                if ($oopRow.length) {
+                    const min = parseInt($button.data('min'), 10) || 0;
+                    const $repeater = $button.closest('.wp-field-repeater');
+                    const count = $repeater.find('.wp-field-repeater-rows > .wp-field-repeater-row').length;
+
+                    if (count <= min) {
+                        return;
+                    }
+
+                    $oopRow.remove();
+                    self.checkRepeaterLimit($repeater);
+
+                    return;
+                }
+
+                // Legacy repeater variant
+                $button.closest('.wp-field-repeater-item').remove();
             });
         },
 
         /**
          * Добавить элемент в repeater
          */
-        addRepeaterItem: function (fieldId) {
-            const $repeater = $('[data-field-id="' + fieldId + '"].wp-field-repeater > .wp-field-repeater');
-            const $template = $repeater.find('.wp-field-repeater-template').first();
+        addRepeaterItem: function ($button) {
+            const $repeater = $button.closest('.wp-field-repeater');
+
+            // OOP repeater variant (Field\Types\RepeaterField)
+            const $rows = $repeater.find('> .wp-field-repeater-rows');
+            const $templateScript = $repeater.find('> .wp-field-repeater-template');
+
+            if ($rows.length && $templateScript.length) {
+                const max = parseInt($button.data('max'), 10) || 0;
+                const $existingRows = $rows.find('> .wp-field-repeater-row');
+                const count = $existingRows.length;
+
+                if (max > 0 && count >= max) {
+                    return;
+                }
+
+                const indices = $existingRows.map(function () {
+                    return parseInt($(this).attr('data-index'), 10) || 0;
+                }).get();
+
+                const newIndex = indices.length > 0 ? Math.max.apply(null, indices) + 1 : 0;
+                const templateHtml = ($templateScript.html() || '').trim();
+
+                if (!templateHtml) {
+                    console.warn('Template не найден для OOP repeater');
+                    return;
+                }
+
+                const rowHtml = templateHtml.replace(/\{\{INDEX\}\}/g, String(newIndex));
+                $rows.append(rowHtml);
+                this.checkRepeaterLimit($repeater);
+
+                return;
+            }
+
+            // Legacy repeater variant
+            const fieldId = $button.data('field-id');
+            if (!fieldId) {
+                return;
+            }
+
+            const $legacyRoot = $('[data-field-id="' + fieldId + '"].wp-field-repeater');
+            const $legacyRepeater = $legacyRoot.find('> .wp-field-repeater');
+            const $legacyTarget = $legacyRepeater.length ? $legacyRepeater : $legacyRoot;
+
+            const $template = $legacyTarget.find('.wp-field-repeater-template').first();
 
             if ($template.length === 0) {
                 console.warn('Template не найден для repeater: ' + fieldId);
@@ -665,7 +728,7 @@
             }
 
             // Получаем максимальный индекс
-            const $existingItems = $repeater.find('.wp-field-repeater-item:not(.wp-field-repeater-template)');
+            const $existingItems = $legacyTarget.find('.wp-field-repeater-item:not(.wp-field-repeater-template)');
             const indices = $existingItems.map(function() {
                 return parseInt($(this).data('index')) || 0;
             }).get();
@@ -708,25 +771,45 @@
                 }
             });
 
-            $repeater.append($newItem);
+            $legacyTarget.append($newItem);
 
             // Проверяем лимит
-            this.checkRepeaterLimit(fieldId);
+            this.checkRepeaterLimit($legacyRoot);
         },
 
         /**
          * Проверить лимит repeater
          */
-        checkRepeaterLimit: function (fieldId) {
-            const $repeater = $('[data-field-id="' + fieldId + '"].wp-field-repeater > .wp-field-repeater');
-            const max = parseInt($repeater.data('max')) || 0;
+        checkRepeaterLimit: function ($repeater) {
+            if (!($repeater && $repeater.length)) {
+                return;
+            }
+
+            const $addButton = $repeater.find('> .wp-field-repeater-add').first();
+
+            // OOP repeater variant
+            if ($addButton.length && $repeater.find('> .wp-field-repeater-rows').length) {
+                const max = parseInt($addButton.data('max'), 10) || 0;
+                const count = $repeater.find('> .wp-field-repeater-rows > .wp-field-repeater-row').length;
+
+                if (max > 0 && count >= max) {
+                    $addButton.prop('disabled', true);
+                } else {
+                    $addButton.prop('disabled', false);
+                }
+
+                return;
+            }
+
+            // Legacy repeater variant
+            const max = parseInt($repeater.data('max'), 10) || 0;
             const count = $repeater.find('.wp-field-repeater-item:not(.wp-field-repeater-template)').length;
-            const $addButton = $('[data-field-id="' + fieldId + '"] .wp-field-repeater-add');
+            const $legacyAddButton = $repeater.find('.wp-field-repeater-add');
 
             if (max > 0 && count >= max) {
-                $addButton.prop('disabled', true);
+                $legacyAddButton.prop('disabled', true);
             } else {
-                $addButton.prop('disabled', false);
+                $legacyAddButton.prop('disabled', false);
             }
         },
 
